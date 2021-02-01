@@ -1,0 +1,20 @@
+html {
+    width: 300px;
+}
+section {
+    margin: 5px;
+}
+#chatBox {
+    padding: 10px;
+    border: solid black 1px;
+    height: 200px;
+}
+#messageInput {
+    width: 265px;
+}
+#hostConfig input {
+    float: right;
+}
+#hostConfig div {
+    padding-bottom: 20px;
+}
