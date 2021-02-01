@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            html {
+                width: 300px;
+            }
+            section {
+                margin: 5px;
+            }
+            #chatBox {
+                padding: 10px;
+                border: solid black 1px;
+                height: 200px;
+            }
+            #messageInput {
+                width: 265px;
+            }
+            #hostConfig input {
+                float: right;
+            }
+            #hostConfig div {
+                padding-bottom: 20px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <section id="infoSection">
+
+            <strong>Host Address:</strong>
+            <span id="infoHost"></span>
+
+            <strong>Port:</strong>
+            <span id="infoPort"></span>
+
+            <strong>Status:</strong>
+            <span id="infoStatus"></span>
+
+            <div>
+                <input type="text" id="username" placeholder="Username">
+            </div>
+        </section>
+        <section id="chatBox">
+        </section>
+        <section id="messageBox">
+
+            <input id="messageInput" type="text" placeholder="Enter Message">
+
+        </section>
+        <section id="config">
+
+            <h3>Configuration</h3>
+
+            <div id="hostConfig">
+                <div>
+                    <label for="hostAddress">Address:</label>
+                    <input type="text" id="hostAddress" placeholder="IP Address">
+                </div>
+                <div>
+                    <label for="port">Port:</label>
+                    <input type="text" id="port" placeholder="Port">
+                </div>
+                <div>
+                    <button id="hostBtn">Host</button>
+                </div>
+            </div>
+
+        </section>
+
+        <script src="popup.js"></script>
+    </body>
+</html>
