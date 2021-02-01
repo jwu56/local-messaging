@@ -1,0 +1,23 @@
+{
+  "name": "local-messaging",
+  "version": "1.0.0",
+  "description": "An Electron app for messaging on the same network using locally hosted web servers",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KLZX121/local-messaging.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/KLZX121/local-messaging/issues"
+  },
+  "homepage": "https://github.com/KLZX121/local-messaging#readme",
+  "dependencies": {
+    "electron": "^11.2.1"
+  }
+}

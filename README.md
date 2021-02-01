@@ -1,2 +1,2 @@
 ## Local Messaging
-An Electron app that uses local web server hosting to transfer messages
+An Electron app for messaging on the same network using locally hosted web servers
