@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <link href="messaging.css" rel="stylesheet">
+        <link href="index.css" rel="stylesheet">
     </head>
 
     <body>
         <section id="infoSection">
 
-            <strong>Host Address:</strong>
-            <span id="infoHost"></span>
+            <div><strong>Host Address:</strong>
+            <span id="infoHost"></span></div>
 
-            <strong>Port:</strong>
-            <span id="infoPort"></span>
+            <div><strong>Port:</strong>
+            <span id="infoPort"></span></div>
 
-            <strong>Status:</strong>
-            <span id="infoStatus"></span>
+            <div><strong>Status:</strong>
+            <span id="infoStatus"></span></div>
 
             <div>
                 <input type="text" id="username" placeholder="Username">
@@ -31,6 +31,7 @@
 
             <h3>Configuration</h3>
 
+            <button id="getIP">Get IP Address</button>
             <div id="hostConfig">
                 <div>
                     <label for="hostAddress">Address:</label>
@@ -42,11 +43,13 @@
                 </div>
                 <div>
                     <button id="hostBtn">Host</button>
+                    <button id="connectBtn">Connect</button>
+                    <span id="error"></span>
                 </div>
             </div>
 
         </section>
 
-        <script src="messaging.js"></script>
+        <script src="index.js"></script>
     </body>
 </html>
