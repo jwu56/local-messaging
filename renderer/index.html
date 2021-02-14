@@ -27,9 +27,8 @@
             <input id="messageInput" type="text" placeholder="Enter Message">
 
         </section>
-        <section id="config">
-
-            <h3>Configuration</h3>
+        <h3 onclick="toggleConfig()">Configuration</h3>
+        <section id="config" style="display: none;">
 
             <button id="getIP">Get IP Address</button>
             <div id="hostConfig">
@@ -39,11 +38,12 @@
                 </div>
                 <div>
                     <label for="port">Port:</label>
-                    <input type="text" id="port" placeholder="Port">
+                    <input type="number" id="port" placeholder="Port">
                 </div>
                 <div>
-                    <button id="hostBtn">Host</button>
-                    <button id="connectBtn">Connect</button>
+                    <button id="hostBtn" style="display: inline-block;">Host</button>
+                    <button id="connectBtn" style="display: inline-block;">Connect</button>
+                    <button id="disconnectBtn" style="display: none;">Disconnect</button>
                     <span id="error"></span>
                 </div>
             </div>

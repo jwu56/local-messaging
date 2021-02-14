@@ -19,6 +19,6 @@
   "homepage": "https://github.com/KLZX121/local-messaging#readme",
   "dependencies": {
     "electron": "^11.2.1",
-    "websocket": "^1.0.33"
+    "ws": "^7.4.3"
   }
 }
