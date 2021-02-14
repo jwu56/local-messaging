@@ -1,4 +1,5 @@
-const { app, BrowserWindow,Menu } = require('electron');
+const { app, BrowserWindow, Menu, Tray} = require('electron');
+const path = require('path');
 
 Menu.setApplicationMenu(null);
 
@@ -13,10 +14,33 @@ function boot(){
             nodeIntegration: true
         }
     });
-    win.loadFile('./renderer/index.html');
+    win.loadFile(path.join(__dirname,'./renderer/index.html'));
     win.webContents.on('did-finish-load', () => win.show());
 
     win.webContents.openDevTools();
+
+    win.on('close', function (event) {
+        if (!app.isQuitting){
+            event.preventDefault();
+            win.hide();
+        }
+        return false;
+    });
+
+    const contextMenu = Menu.buildFromTemplate([
+        { 
+            label: 'Quit', 
+            click:  function(){
+                app.isQuitting = true;
+                app.quit();
+            } 
+        }
+    ]);
+
+    tray = new Tray(path.join(__dirname,'./imgs/icon.png'));
+    tray.setToolTip('Right click for options');
+    tray.setContextMenu(contextMenu);
+    tray.on('click', () => win.show())
 };
 
 app.on('ready', boot);
