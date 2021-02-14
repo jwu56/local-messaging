@@ -4,10 +4,11 @@ const WebSocket = require('ws');
 const { networkInterfaces } = require('os');
 
 const g = document.getElementById.bind(document);
-const hostBtn = g('hostBtn');
-const connectBtn = g('connectBtn');
-const chatBox = g('chatBox');
-const config = g('config');
+const hostBtn = g('hostBtn'),
+    connectBtn = g('connectBtn'),
+    chatBox = g('chatBox'),
+    config = g('config'),
+    infoStatus = g('infoStatus');
 
 function getIp(){
     const networks = networkInterfaces().WiFi;
@@ -33,7 +34,9 @@ function hostServer(){
     if (!host || !port ) {
         configError('Please enter a host and port');
         return;
-    }
+    };
+
+    infoStatus.innerHTML = 'Hosting';
 
     let history = [];
 
@@ -41,6 +44,7 @@ function hostServer(){
     server.on('error', () => {
         server.close(); 
         parseMessage(JSON.parse(newMessage('system', 'Local System', 'There was an error hosting the server, make sure your host (your ip address) and port (make sure there is no other traffic on this port) are correct')));
+        infoStatus.innerHTML = 'Disconnected';
     });
     server.listen(port, host, setupWs);
 
@@ -79,12 +83,14 @@ function hostServer(){
 };
 
 function connectToServer(hoster, options){
+    infoStatus.innerHTML = 'Connecting';
     if (hoster){
         host = options.host;
         port = options.port;
     } else {
         if (!g('username').value) {
             configError('Please enter a username');
+            infoStatus.innerHTML = 'Disconnected';
             return;
         };
 
@@ -93,10 +99,12 @@ function connectToServer(hoster, options){
 
         if (!host || !port) {
             configError('Please enter a host and port');
+            infoStatus.innerHTML = 'Disconnected';
             return;
         }
         chatBox.innerHTML += '<div>=========================</div>'
     };
+    infoStatus.innerHTML = 'Connected';
     parseMessage(JSON.parse(newMessage('system', 'Local System', `Connected to http://${host}:${port}`)));
 
     g('username').readOnly = 'true';
@@ -104,6 +112,19 @@ function connectToServer(hoster, options){
     g('infoPort').innerHTML = port;
 
     const ws = new WebSocket(`http://${host}:${port}`);
+
+    ws.on('error', () => {
+        parseMessage(JSON.parse(newMessage('system', 'Local System', 'Error connecting - make sure your address and port are correct')));
+        g('hostBtn').style.display = 'inline-block';
+        g('connectBtn').style.display = 'inline-block';
+        g('disconnectBtn').style.display = 'none';
+
+        g('username').readOnly = 'false';
+        g('infoHost').innerHTML = '';
+        g('infoPort').innerHTML = '';
+        document.removeEventListener('keydown', sendMessage);
+        infoStatus.innerHTML = 'Disconnected';
+    })
 
     ws.on('open', () => { //send join message
         ws.send(newMessage('system', 'Global System', `${g('username').value} has joined`));
@@ -131,6 +152,7 @@ function connectToServer(hoster, options){
         g('infoHost').innerHTML = '';
         g('infoPort').innerHTML = '';
         document.removeEventListener('keydown', sendMessage);
+        infoStatus.innerHTML = 'Disconnected';
     });
 
     document.addEventListener('keydown', sendMessage);
@@ -159,11 +181,12 @@ function connectToServer(hoster, options){
         g('username').readOnly = 'false';
         g('infoHost').innerHTML = '';
         g('infoPort').innerHTML = '';
+
+        infoStatus.innerHTML = 'Disconnected';
     };
 };
 
 function parseMessage(data){
-    console.log(data);
     const message = document.createElement('div');
     message.innerHTML = `${data.type === 'system' ? '<em>' : ''}<em>${data.time} </em><strong>${data.username}: </strong>${data.data}${data.type === 'system' ? '</em>' : ''}`;
     chatBox.appendChild(message);
