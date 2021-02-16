@@ -16,7 +16,8 @@ const hostBtn = g('hostBtn'),
     infoPort = g('infoPort'),
     searchProgress = g('searchProgress'),
     searchBox = g('searchBox'),
-    cancelSearchBtn = g('cancelSearchBtn');
+    cancelSearchBtn = g('cancelSearchBtn'),
+    endWhenFound = g('endWhenFound');
 
 let host, wss, server, searchId;
 const port = 42069;
@@ -25,10 +26,12 @@ const stopSearchEvent = new Event('stopSearch');
 hostBtn.addEventListener('click', hostServer);
 searchServersBtn.addEventListener('click', runSearches);
 
-cancelSearchBtn.addEventListener('click', () => {
+cancelSearchBtn.addEventListener('click', endSearch);
+
+function endSearch(){
     document.dispatchEvent(stopSearchEvent);
     clearTimeout(searchId);
-    setSearchStatus('Cancelling scan...');
+    setSearchStatus('Ending scan...');
 
     setTimeout(() => {
         setSearchStatus('');
@@ -37,7 +40,7 @@ cancelSearchBtn.addEventListener('click', () => {
         cancelSearchBtn.style.display = 'none';
         hostBtn.style.display = 'inline';
     }, 3000);
-});
+};
 
 function hostServer(){
     if (!username.value) {
@@ -279,10 +282,13 @@ function runSearches(){
                     socket.on('error', () => status = 'closed');
                     socket.on('close', () => {
                         if (status == "open"){
-                        addresses.push(`${ip}.${i}.${j}`);
+                            addresses.push(`${ip}.${i}.${j}`);
                         };
                         if (i === maxI && j === 255) {
                             resolve(addresses);
+                            if (endWhenFound.checked && addresses.length > 0){
+                                endSearch();
+                            };
                         };
                     });
                     socket.connect(port, `${ip}.${i}.${j}`);
