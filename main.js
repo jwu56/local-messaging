@@ -6,7 +6,7 @@ Menu.setApplicationMenu(null);
 function boot(){
     const win = new BrowserWindow({
         width: 400,
-        height: 450,
+        height: 500,
         minimizable: false,
         maximizable: false,
         show: false,

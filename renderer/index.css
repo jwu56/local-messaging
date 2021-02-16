@@ -20,3 +20,21 @@ section {
 #hostConfig div {
     padding-bottom: 20px;
 }
+#searchBox {
+    margin-top: 10px;
+}
+#errorDisplay {
+    color: red;
+}
+.system {
+    color: grey;
+}
+.leave {
+    color: purple;
+}
+.join {
+    color: green;
+}
+.error {
+    color: red;
+}

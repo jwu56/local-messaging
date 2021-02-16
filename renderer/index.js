@@ -5,45 +5,40 @@ const { networkInterfaces } = require('os');
 
 const g = document.getElementById.bind(document);
 const hostBtn = g('hostBtn'),
-    connectBtn = g('connectBtn'),
     chatBox = g('chatBox'),
-    config = g('config'),
-    infoStatus = g('infoStatus');
+    infoStatus = g('infoStatus'),
+    errorDisplay = g('errorDisplay'),
+    searchServersBtn = g('searchServersBtn'),
+    searchStatus = g('searchStatus'),
+    disconnectBtn = g('disconnectBtn'),
+    username = g('username'),
+    infoHost = g('infoHost'),
+    infoPort = g('infoPort'),
+    searchProgress = g('searchProgress'),
+    searchBox = g('searchBox');
 
-function getIp(){
-    const networks = networkInterfaces().WiFi;
-    return networks.filter(network => network.family === "IPv4")[0].address;
-};
-
-g('getIP').onclick = () => g('hostAddress').value = getIp();
-
-let host, port, wss, server;
+let host, wss, server;
+const port = 42069;
 
 hostBtn.addEventListener('click', hostServer);
-connectBtn.addEventListener('click', () => connectToServer(false))
+searchServersBtn.addEventListener('click', runSearches)
 
 function hostServer(){
-    if (!g('username').value) {
+    if (!username.value) {
         configError('Please enter a username');
         return;
     };
 
-    host = g('hostAddress').value;
-    port = g('port').value;
-
-    if (!host || !port ) {
-        configError('Please enter a host and port');
-        return;
-    };
+    host = getIp();
 
     infoStatus.innerHTML = 'Hosting';
 
     let history = [];
 
     server = http.createServer((req, res) => {});
-    server.on('error', () => {
+    server.on('error', error => {
         server.close(); 
-        parseMessage(JSON.parse(newMessage('system', 'Local System', 'There was an error hosting the server, make sure your host (your ip address) and port (make sure there is no other traffic on this port) are correct')));
+        parseMessage(JSON.parse(newMessage('system error', 'Local System', `There was an error hosting the server: ${error}`)));
         infoStatus.innerHTML = 'Disconnected';
     });
     server.listen(port, host, setupWs);
@@ -67,7 +62,7 @@ function hostServer(){
             });
             ws.on('close', (code, reason) => {
                 if (reason) {
-                    const msg = newMessage('system', 'Global System', `${reason} has left`);
+                    const msg = newMessage('system leave', 'Global System', `${reason} has left`);
                     history.push(msg);
                     sendToAll(msg);
                 };
@@ -77,57 +72,52 @@ function hostServer(){
                 wss.clients.forEach(ws => ws.send(message))
             };
         });
-        
-        connectToServer(true, {host: host, port: port})
+        connectToServer(true)
     }
 };
 
-function connectToServer(hoster, options){
+function connectToServer(hoster, ip){
+    searchBox.style.display = 'none';
+    searchBox.innerHTML = '';
     infoStatus.innerHTML = 'Connecting';
-    if (hoster){
-        host = options.host;
-        port = options.port;
-    } else {
-        if (!g('username').value) {
+    if (!hoster){
+        if (!username.value) {
             configError('Please enter a username');
             infoStatus.innerHTML = 'Disconnected';
             return;
         };
-
-        host = g('hostAddress').value;
-        port = g('port').value;
-
-        if (!host || !port) {
-            configError('Please enter a host and port');
-            infoStatus.innerHTML = 'Disconnected';
-            return;
-        }
-        chatBox.innerHTML += '<div>=========================</div>'
+        host = ip;
+        chatBox.innerHTML += '<div>=========================</div>';
     };
-    infoStatus.innerHTML = 'Connected';
-    parseMessage(JSON.parse(newMessage('system', 'Local System', `Connected to http://${host}:${port}`)));
 
-    g('username').readOnly = 'true';
-    g('infoHost').innerHTML = host;
-    g('infoPort').innerHTML = port;
+    username.readOnly = 'true';
+    infoHost.innerHTML = host;
+    infoPort.innerHTML = port;
 
     const ws = new WebSocket(`http://${host}:${port}`);
 
-    ws.on('error', () => {
-        parseMessage(JSON.parse(newMessage('system', 'Local System', 'Error connecting - make sure your address and port are correct')));
-        g('hostBtn').style.display = 'inline-block';
-        g('connectBtn').style.display = 'inline-block';
-        g('disconnectBtn').style.display = 'none';
+    let timeout = setTimeout(() => {
+        disconnectAll();
+    }, 10000);
 
-        g('username').readOnly = 'false';
-        g('infoHost').innerHTML = '';
-        g('infoPort').innerHTML = '';
+    ws.on('error', error => {
+        parseMessage(JSON.parse(newMessage('system error', 'Local System', `There was an error connecting to the server: ${error}`)));
+        hostBtn.style.display = 'inline-block';
+        searchServersBtn.style.display = 'inline-block';
+        disconnectBtn.style.display = 'none';
+
+        username.removeAttribute('readonly');
+        infoHost.innerHTML = '';
+        infoPort.innerHTML = '';
         document.removeEventListener('keydown', sendMessage);
         infoStatus.innerHTML = 'Disconnected';
     })
 
-    ws.on('open', () => { //send join message
-        ws.send(newMessage('system', 'Global System', `${g('username').value} has joined`));
+    ws.on('open', () => { //succesful join
+        clearTimeout(timeout);
+        infoStatus.innerHTML = 'Connected';
+        parseMessage(JSON.parse(newMessage('system', 'Local System', `Connected to http://${host}:${port}`)));
+        ws.send(newMessage('system join', 'Global System', `${username.value} has joined`));
     });
 
     ws.on('message', message => {
@@ -143,14 +133,14 @@ function connectToServer(hoster, options){
     });
 
     ws.on('close', () => {
-        parseMessage(JSON.parse(newMessage('system', 'Local System', 'Connection closed')));
-        g('hostBtn').style.display = 'inline-block';
-        g('connectBtn').style.display = 'inline-block';
-        g('disconnectBtn').style.display = 'none';
+        parseMessage(JSON.parse(newMessage('system leave', 'Local System', 'Connection closed')));
+        hostBtn.style.display = 'inline-block';
+        searchServersBtn.style.display = 'inline-block';
+        disconnectBtn.style.display = 'none';
 
-        g('username').readOnly = 'false';
-        g('infoHost').innerHTML = '';
-        g('infoPort').innerHTML = '';
+        username.removeAttribute('readonly');
+        infoHost.innerHTML = '';
+        infoPort.innerHTML = '';
         document.removeEventListener('keydown', sendMessage);
         infoStatus.innerHTML = 'Disconnected';
     });
@@ -158,37 +148,132 @@ function connectToServer(hoster, options){
     document.addEventListener('keydown', sendMessage);
     function sendMessage(event){
         if (event.key === 'Enter' && document.activeElement === g('messageInput')){
-            ws.send(newMessage('message', g('username').value || 'Guest', g('messageInput').value));
+            ws.send(newMessage('message', username.value || 'Guest', g('messageInput').value));
             g('messageInput').value = '';
         };
     };
 
-    g('hostBtn').style.display = 'none';
-    g('connectBtn').style.display = 'none';
-    g('disconnectBtn').style.display = 'inline-block';
+    hostBtn.style.display = 'none';
+    searchServersBtn.style.display = 'none';
+    disconnectBtn.style.display = 'inline-block';
 
-    g('disconnectBtn').onclick = disconnectAll;
+    disconnectBtn.onclick = disconnectAll;
 
     function disconnectAll(){
-        if (wss) wss.close(); //close all things
+        if (wss) wss.close();
         if (server) server.close();
-        ws.close(1000, g('username').value);
+        ws.close(1000, username.value);
     
-        g('hostBtn').style.display = 'inline-block';
-        g('connectBtn').style.display = 'inline-block';
-        g('disconnectBtn').style.display = 'none';
+        hostBtn.style.display = 'inline-block';
+        searchServersBtn.style.display = 'inline-block';
+        disconnectBtn.style.display = 'none';
 
-        g('username').readOnly = 'false';
-        g('infoHost').innerHTML = '';
-        g('infoPort').innerHTML = '';
+        username.removeAttribute('readonly');
+        infoHost.innerHTML = '';
+        infoPort.innerHTML = '';
 
         infoStatus.innerHTML = 'Disconnected';
     };
 };
 
+let searching = false;
+
+function runSearches(){
+    if (searching) {
+        configError('Already Searching!');
+        return;
+    };
+    searching = true;
+    searchBox.style.display = 'block';
+    searchBox.innerHTML = '';
+    let a = 1;
+
+    let ip = getIp().split('.');
+    ip.splice(-2, 2);
+    ip = ip.join('.');
+
+    setSearchStatus(`Scanning ${ip}.${a}.0 - ${ip}.${a + 24}.255`);
+    searchProgress.value = 0;
+    searchProgress.style.display = 'block';
+    setTimeout(function search(){
+
+        searchServers(a, a + 24)
+        .then(array => {
+            searchProgress.value += 0.1;
+            setSearchStatus(`Scanning ${ip}.${a + 24}.0 - ${ip}.${a + 48}.255`);
+            if (a === 251) {
+                setSearchStatus('Finished Scan');
+                searching = false;
+                setTimeout(() => {
+                    setSearchStatus('');
+                    searchProgress.style.display = 'none';
+                }, 3000);
+            };
+            if (array.length < 1) return;
+            array.forEach(ip => {
+                const ipBtn = document.createElement('button');
+                ipBtn.innerHTML = ip;
+                searchBox.appendChild(ipBtn);
+                ipBtn.onclick = () => connectToServer(false, ip);
+            })
+        })
+        .catch (error => {
+            console.error(error);
+        });
+        
+        a += 25;
+        if (a + 24 <= 255){
+            setTimeout(search, 2000);
+        }
+    }, 2000);
+
+    function searchServers(minI, maxI){
+        const net = require('net');
+        const Socket = net.Socket;
+
+        let addresses = [];
+      
+        const promise = new Promise((resolve, reject) => {
+          for (let i = minI; i <= maxI; i++){
+              for (let j = 1; j <= 255; j++){
+      
+                const socket = new Socket();
+                let status = null;
+      
+                socket.on('connect', () => {
+                    status = 'open';
+                    socket.end();
+                });
+                socket.setTimeout(1500);
+                socket.on('timeout', () => {
+                    status = 'closed';
+                    socket.destroy();
+                });
+                socket.on('error', () => status = 'closed');
+                socket.on('close', () => {
+                    if (status == "open"){
+                      addresses.push(`${ip}.${i}.${j}`);
+                    };
+                    if (i === maxI && j === 255) {
+                        resolve(addresses);
+                    };
+                });
+                socket.connect(port, `${ip}.${i}.${j}`);
+              };
+          };
+        })
+        return promise;
+    };
+
+    function setSearchStatus(message){
+        searchStatus.innerHTML = message;
+    };
+};
+
 function parseMessage(data){
     const message = document.createElement('div');
-    message.innerHTML = `${data.type === 'system' ? '<em>' : ''}<em>${data.time} </em><strong>${data.username}: </strong>${data.data}${data.type === 'system' ? '</em>' : ''}`;
+    message.setAttribute('class', data.type);
+    message.innerHTML = `<em>${data.time} </em><strong>${data.username}: </strong>${data.data}`;
     chatBox.appendChild(message);
     scrollDown();
 };
@@ -207,15 +292,15 @@ function newMessage(type, username, data){
 };
 
 function configError(error){
-    g('error').innerHTML = error;
-    setTimeout(() => g('error').innerHTML = '', 3000);
+    errorDisplay.innerHTML = error;
+    setTimeout(() => errorDisplay.innerHTML = '', 3000);
 };
 
 function scrollDown(){
-    //const isScrolledToBottom = chatBox.scrollHeight - chatBox.clientHeight <= chatBox.scrollTop + 1;
-    /* if(isScrolledToBottom) */ chatBox.scrollTop = chatBox.scrollHeight - chatBox.clientHeight;
+    chatBox.scrollTop = chatBox.scrollHeight - chatBox.clientHeight;
 }
 
-function toggleConfig(){
-    config.style.display = config.style.display === 'none' ? 'block' : 'none';
+function getIp(){
+    const networks = networkInterfaces().WiFi;
+    return networks.filter(network => network.family === "IPv4")[0].address;
 };
