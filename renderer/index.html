@@ -31,11 +31,16 @@
         
 
         <section id="config">
-            <div id="errorDisplay"></div>
+            <div>
+                <label for="endWhenFound">End search when server found?</label>
+                <input type="checkbox" id="endWhenFound">
+            </div>
             <button id="hostBtn">Host Server</button>
             <button id="searchServersBtn">Search for Servers</button>
+            <button id="cancelSearchBtn" style="display: none;">Cancel Search</button>
             <button id="disconnectBtn" style="display: none;">Disconnect</button>
 
+            <div id="errorDisplay"></div>
             <div id="searchStatus"></div>
             <progress id="searchProgress" value="0" style="display: none;"></progress>
             <div id="searchBox" style="display: none;">

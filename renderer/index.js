@@ -15,13 +15,29 @@ const hostBtn = g('hostBtn'),
     infoHost = g('infoHost'),
     infoPort = g('infoPort'),
     searchProgress = g('searchProgress'),
-    searchBox = g('searchBox');
+    searchBox = g('searchBox'),
+    cancelSearchBtn = g('cancelSearchBtn');
 
-let host, wss, server;
+let host, wss, server, searchId;
 const port = 42069;
+const stopSearchEvent = new Event('stopSearch');
 
 hostBtn.addEventListener('click', hostServer);
-searchServersBtn.addEventListener('click', runSearches)
+searchServersBtn.addEventListener('click', runSearches);
+
+cancelSearchBtn.addEventListener('click', () => {
+    document.dispatchEvent(stopSearchEvent);
+    clearTimeout(searchId);
+    setSearchStatus('Cancelling scan...');
+
+    setTimeout(() => {
+        setSearchStatus('');
+        searchProgress.style.display = 'none';
+        searchServersBtn.style.display = 'inline';
+        cancelSearchBtn.style.display = 'none';
+        hostBtn.style.display = 'inline';
+    }, 3000);
+});
 
 function hostServer(){
     if (!username.value) {
@@ -176,14 +192,12 @@ function connectToServer(hoster, ip){
     };
 };
 
-let searching = false;
-
 function runSearches(){
-    if (searching) {
-        configError('Already Searching!');
-        return;
-    };
-    searching = true;
+    let halt = false;
+    hostBtn.style.display = 'none';
+    searchServersBtn.style.display = 'none';
+    cancelSearchBtn.style.display = 'inline';
+
     searchBox.style.display = 'block';
     searchBox.innerHTML = '';
     let a = 1;
@@ -195,35 +209,42 @@ function runSearches(){
     setSearchStatus(`Scanning ${ip}.${a}.0 - ${ip}.${a + 24}.255`);
     searchProgress.value = 0;
     searchProgress.style.display = 'block';
-    setTimeout(function search(){
 
+    searchId = setTimeout(function search(){
         searchServers(a, a + 24)
         .then(array => {
-            searchProgress.value += 0.1;
-            setSearchStatus(`Scanning ${ip}.${a + 24}.0 - ${ip}.${a + 48}.255`);
+            if (!halt){
+                searchProgress.value += 0.1;
+                setSearchStatus(`Scanning ${ip}.${a + 24}.0 - ${ip}.${a + 48}.255`);
+            };
             if (a === 251) {
                 setSearchStatus('Finished Scan');
-                searching = false;
                 setTimeout(() => {
                     setSearchStatus('');
                     searchProgress.style.display = 'none';
                 }, 3000);
+
+                searchServersBtn.style.display = 'inline';
+                hostBtn.style.display = 'inline';
+                cancelSearchBtn.style.display = 'none';
             };
             if (array.length < 1) return;
+
             array.forEach(ip => {
                 const ipBtn = document.createElement('button');
                 ipBtn.innerHTML = ip;
                 searchBox.appendChild(ipBtn);
                 ipBtn.onclick = () => connectToServer(false, ip);
-            })
+            });
+
         })
         .catch (error => {
             console.error(error);
         });
-        
+
         a += 25;
         if (a + 24 <= 255){
-            setTimeout(search, 2000);
+            searchId = setTimeout(search, 2000);
         }
     }, 2000);
 
@@ -234,42 +255,46 @@ function runSearches(){
         let addresses = [];
       
         const promise = new Promise((resolve, reject) => {
-          for (let i = minI; i <= maxI; i++){
-              for (let j = 1; j <= 255; j++){
-      
-                const socket = new Socket();
-                let status = null;
-      
-                socket.on('connect', () => {
-                    status = 'open';
-                    socket.end();
-                });
-                socket.setTimeout(1500);
-                socket.on('timeout', () => {
-                    status = 'closed';
-                    socket.destroy();
-                });
-                socket.on('error', () => status = 'closed');
-                socket.on('close', () => {
-                    if (status == "open"){
-                      addresses.push(`${ip}.${i}.${j}`);
-                    };
-                    if (i === maxI && j === 255) {
-                        resolve(addresses);
-                    };
-                });
-                socket.connect(port, `${ip}.${i}.${j}`);
-              };
-          };
-        })
+            for (let i = minI; i <= maxI && !halt; i++){
+                for (let j = 1; j <= 255 && !halt; j++){
+        
+                    const socket = new Socket();
+                    let status = null;
+
+                    document.addEventListener('stopSearch', function stop() {
+                        halt = true;
+                        socket.destroy();
+                        document.removeEventListener('stopSearch', stop);
+                    });
+        
+                    socket.on('connect', () => {
+                        status = 'open';
+                        socket.end();
+                    });
+                    socket.setTimeout(1500);
+                    socket.on('timeout', () => {
+                        status = 'closed';
+                        socket.destroy();
+                    });
+                    socket.on('error', () => status = 'closed');
+                    socket.on('close', () => {
+                        if (status == "open"){
+                        addresses.push(`${ip}.${i}.${j}`);
+                        };
+                        if (i === maxI && j === 255) {
+                            resolve(addresses);
+                        };
+                    });
+                    socket.connect(port, `${ip}.${i}.${j}`);
+                };
+            };
+        });
         return promise;
     };
-
-    function setSearchStatus(message){
-        searchStatus.innerHTML = message;
-    };
 };
-
+function setSearchStatus(message){
+    searchStatus.innerHTML = message;
+};
 function parseMessage(data){
     const message = document.createElement('div');
     message.setAttribute('class', data.type);

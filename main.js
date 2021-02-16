@@ -10,6 +10,7 @@ function boot(){
         minimizable: false,
         maximizable: false,
         show: false,
+        icon: path.join(__dirname, './build/icon.png'),
         webPreferences: {
             nodeIntegration: true
         }
@@ -37,7 +38,7 @@ function boot(){
         }
     ]);
 
-    tray = new Tray(path.join(__dirname,'./imgs/icon.png'));
+    tray = new Tray(path.join(__dirname,'./build/icon.png'));
     tray.setToolTip('Right click for options');
     tray.setContextMenu(contextMenu);
     tray.on('click', () => win.show())
