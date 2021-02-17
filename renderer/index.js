@@ -54,7 +54,7 @@ function hostServer(){
 
     let history = [];
 
-    server = http.createServer((req, res) => {});
+    server = http.createServer((req, res) => {res.end('Local messaging server')});
     server.on('error', error => {
         server.close(); 
         parseMessage(JSON.parse(newMessage('system error', 'Local System', `There was an error hosting the server: ${error}`)));
@@ -76,12 +76,24 @@ function hostServer(){
             };
 
             ws.on('message', message => {
-                history.push(message);
-                sendToAll(message);
+                if (JSON.parse(message).type === 'data'){
+                    ws.username = JSON.parse(message).data;
+                    const msg = newMessage('system join', 'Global System', `${ws.username} has joined`);
+                    history.push(msg);
+                    sendToAll(msg);
+                } else{
+                    history.push(message);
+                    sendToAll(message);
+                }
+                
             });
             ws.on('close', (code, reason) => {
                 if (reason) {
                     const msg = newMessage('system leave', 'Global System', `${reason} has left`);
+                    history.push(msg);
+                    sendToAll(msg);
+                } else {
+                    const msg = newMessage('system leave', 'Global System', `${ws.username} disconnected`);
                     history.push(msg);
                     sendToAll(msg);
                 };
@@ -136,7 +148,7 @@ function connectToServer(hoster, ip){
         clearTimeout(timeout);
         infoStatus.innerHTML = 'Connected';
         parseMessage(JSON.parse(newMessage('system', 'Local System', `Connected to http://${host}:${port}`)));
-        ws.send(newMessage('system join', 'Global System', `${username.value} has joined`));
+        ws.send(newMessage('data', null, username.value));
     });
 
     ws.on('message', message => {
