@@ -19,9 +19,9 @@ const hostBtn = g('hostBtn'),
     cancelSearchBtn = g('cancelSearchBtn'),
     endWhenFound = g('endWhenFound');
 
-let host, wss, server, searchId;
+let host, wss, server;
+let halt = false;
 const port = 42069;
-const stopSearchEvent = new Event('stopSearch');
 
 hostBtn.addEventListener('click', hostServer);
 searchServersBtn.addEventListener('click', runSearches);
@@ -29,8 +29,7 @@ searchServersBtn.addEventListener('click', runSearches);
 cancelSearchBtn.addEventListener('click', endSearch);
 
 function endSearch(){
-    document.dispatchEvent(stopSearchEvent);
-    clearTimeout(searchId);
+    halt = true;
     setSearchStatus('Ending scan...');
 
     setTimeout(() => {
@@ -208,7 +207,7 @@ function connectToServer(hoster, ip){
 };
 
 function runSearches(){
-    let halt = false;
+    halt = false;
     hostBtn.style.display = 'none';
     searchServersBtn.style.display = 'none';
     cancelSearchBtn.style.display = 'inline';
@@ -221,18 +220,24 @@ function runSearches(){
     ip.splice(-2, 2);
     ip = ip.join('.');
 
-    setSearchStatus(`Scanning ${ip}.${a}.0 - ${ip}.${a + 24}.255`);
     searchProgress.value = 0;
     searchProgress.style.display = 'block';
 
-    searchId = setTimeout(function search(){
-        searchServers(a, a + 24)
+    function search(min, max){
+        console.time('Section');
+        if (!halt) {
+            setSearchStatus(`Scanning ${ip}.${min}.0 to ${ip}.${max}.255`);
+            
+        }
+        searchServers(min, max)
         .then(array => {
-            if (!halt){
+            console.timeEnd('Section');
+
+            if (min < 251) {
                 searchProgress.value += 0.1;
-                setSearchStatus(`Scanning ${ip}.${a + 24}.0 - ${ip}.${a + 48}.255`);
-            };
-            if (a === 251) {
+                search(min + 25, max + 25);
+            } else {
+                console.timeEnd('Whole');
                 setSearchStatus('Finished Scan');
                 setTimeout(() => {
                     setSearchStatus('');
@@ -242,7 +247,8 @@ function runSearches(){
                 searchServersBtn.style.display = 'inline';
                 hostBtn.style.display = 'inline';
                 cancelSearchBtn.style.display = 'none';
-            };
+            }
+
             if (array.length < 1) return;
 
             array.forEach(ip => {
@@ -251,36 +257,30 @@ function runSearches(){
                 searchBox.appendChild(ipBtn);
                 ipBtn.onclick = () => connectToServer(false, ip);
             });
-
+    
         })
-        .catch (error => {
+        .catch(error => {
             console.error(error);
         });
-
-        a += 25;
-        if (a + 24 <= 255){
-            searchId = setTimeout(search, 2000);
-        }
-    }, 2000);
+    };
+    console.time('Whole');
+    search(1, 25);
 
     function searchServers(minI, maxI){
         const net = require('net');
         const Socket = net.Socket;
 
         let addresses = [];
+        let socketNum = 0;
       
         const promise = new Promise((resolve, reject) => {
             for (let i = minI; i <= maxI && !halt; i++){
                 for (let j = 1; j <= 255 && !halt; j++){
-        
-                    const socket = new Socket();
-                    let status = null;
 
-                    document.addEventListener('stopSearch', function stop() {
-                        halt = true;
-                        socket.destroy();
-                        document.removeEventListener('stopSearch', stop);
-                    });
+                    let status = null;
+                    const socket = new Socket();
+
+                    ++socketNum;
         
                     socket.on('connect', () => {
                         status = 'open';
@@ -293,12 +293,13 @@ function runSearches(){
                     });
                     socket.on('error', () => status = 'closed');
                     socket.on('close', () => {
+                        --socketNum;
                         if (status == "open"){
                             addresses.push(`${ip}.${i}.${j}`);
                         };
-                        if (i === maxI && j === 255) {
+                        if (socketNum === 0) {
                             resolve(addresses);
-                            if (endWhenFound.checked && addresses.length > 0){
+                            if (addresses.length > 0 && endWhenFound.checked){
                                 endSearch();
                             };
                         };
