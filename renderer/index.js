@@ -65,7 +65,7 @@ function hostServer(){
 
     let history = [];
 
-    server = http.createServer((req, res) => {res.end('Local messaging server')});
+    server = http.createServer((req, res) => {res.end(username.value)});
     server.on('error', error => {
         server.close(); 
         parseMessage(JSON.parse(newMessage('system error', 'Local System', `There was an error hosting the server: ${error}`)));
@@ -272,9 +272,20 @@ function runSearches(){
 
             array.forEach(ip => {
                 const ipBtn = document.createElement('button');
-                ipBtn.innerHTML = ip;
                 searchBox.appendChild(ipBtn);
                 ipBtn.onclick = () => connectToServer(false, ip);
+
+                const http = require('http');
+
+                const req = http.request({hostname: ip, port: port, method: 'GET'}, res => {
+                    res.on('data', data => {
+                        ipBtn.innerHTML += `${data.toString()} (${ip})`;
+                    });
+                });
+                req.on('error', error => {
+                    console.error(error)
+                });
+                req.end()
             });
     
         })
