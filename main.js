@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, Tray} = require('electron');
+const { app, BrowserWindow, Menu, Tray, ipcMain } = require('electron');
 const path = require('path');
 
 Menu.setApplicationMenu(null);
@@ -43,10 +43,22 @@ function boot(){
         ]
     );
 
-    tray = new Tray(path.join(app.getAppPath(),'./imgs/tray.ico'));
+    tray = new Tray(path.join(app.getAppPath(),'./imgs/tray.png'));
     tray.setToolTip('Right click for options');
     tray.setContextMenu(contextMenu);
-    tray.on('click', () => win.show())
+    tray.on('click', () => win.show());
+
+    ipcMain.on('newMessage', () => {
+        if (!win.isFocused()){
+            win.flashFrame(true);
+            tray.setImage(path.join(app.getAppPath(), './imgs/notif.png'));
+
+            win.on('focus', () => {
+                win.flashFrame(false);
+                tray.setImage(path.join(app.getAppPath(), './imgs/tray.png'));
+            });
+        };
+    });
 };
 
 app.on('ready', boot);

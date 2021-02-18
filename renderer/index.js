@@ -2,6 +2,7 @@ const http = require('http');
 const WebSocket = require('ws');
 
 const { networkInterfaces } = require('os');
+const { ipcRenderer} = require('electron');
 
 const g = document.getElementById.bind(document);
 const hostBtn = g('hostBtn'),
@@ -320,6 +321,8 @@ function parseMessage(data){
     message.innerHTML = `<em>${data.time} </em><strong>${data.username}: </strong>${data.data}`;
     chatBox.appendChild(message);
     scrollDown();
+
+    ipcRenderer.send('newMessage', true)
 };
 
 function newMessage(type, username, data){
