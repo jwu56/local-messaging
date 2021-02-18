@@ -18,7 +18,10 @@ const hostBtn = g('hostBtn'),
     searchProgress = g('searchProgress'),
     searchBox = g('searchBox'),
     cancelSearchBtn = g('cancelSearchBtn'),
-    endWhenFound = g('endWhenFound');
+    endWhenFound = g('endWhenFound'),
+    manualConnect = g('manualConnect'),
+    manualConnectBtn = g('manualConnectBtn'),
+    manualHost = g('manualHost');
 
 let host, wss, server;
 let halt = false;
@@ -28,6 +31,13 @@ hostBtn.addEventListener('click', hostServer);
 searchServersBtn.addEventListener('click', runSearches);
 
 cancelSearchBtn.addEventListener('click', endSearch);
+manualConnectBtn.addEventListener('click', () => {
+    if (!manualHost.value){
+        configError('Please enter a host');
+        return;
+    };
+    connectToServer(false, manualHost.value);
+})
 
 function endSearch(){
     halt = true;
@@ -39,6 +49,7 @@ function endSearch(){
         searchServersBtn.style.display = 'inline';
         cancelSearchBtn.style.display = 'none';
         hostBtn.style.display = 'inline';
+        manualConnect.style.display = 'block';
     }, 3000);
 };
 
@@ -142,6 +153,7 @@ function connectToServer(hoster, ip){
         infoPort.innerHTML = '';
         document.removeEventListener('keydown', sendMessage);
         infoStatus.innerHTML = 'Disconnected';
+        manualConnect.style.display = 'block';
     })
 
     ws.on('open', () => { //succesful join
@@ -174,6 +186,7 @@ function connectToServer(hoster, ip){
         infoPort.innerHTML = '';
         document.removeEventListener('keydown', sendMessage);
         infoStatus.innerHTML = 'Disconnected';
+        manualConnect.style.display = 'block';
     });
 
     document.addEventListener('keydown', sendMessage);
@@ -187,6 +200,8 @@ function connectToServer(hoster, ip){
     hostBtn.style.display = 'none';
     searchServersBtn.style.display = 'none';
     disconnectBtn.style.display = 'inline-block';
+
+    manualConnect.style.display = 'none';
 
     disconnectBtn.onclick = disconnectAll;
 
@@ -212,6 +227,7 @@ function runSearches(){
     hostBtn.style.display = 'none';
     searchServersBtn.style.display = 'none';
     cancelSearchBtn.style.display = 'inline';
+    manualConnect.style.display = 'none';
 
     searchBox.style.display = 'block';
     searchBox.innerHTML = '';
@@ -238,6 +254,7 @@ function runSearches(){
                 searchProgress.value += 0.1;
                 search(min + 25, max + 25);
             } else {
+                ipcRenderer.send('ping', true);
                 console.timeEnd('Whole');
                 setSearchStatus('Finished Scan');
                 setTimeout(() => {
@@ -248,6 +265,7 @@ function runSearches(){
                 searchServersBtn.style.display = 'inline';
                 hostBtn.style.display = 'inline';
                 cancelSearchBtn.style.display = 'none';
+                manualConnect.style.display = 'block';
             }
 
             if (array.length < 1) return;
@@ -322,7 +340,7 @@ function parseMessage(data){
     chatBox.appendChild(message);
     scrollDown();
 
-    ipcRenderer.send('newMessage', true)
+    ipcRenderer.send('ping', true);
 };
 
 function newMessage(type, username, data){

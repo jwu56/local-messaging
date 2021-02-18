@@ -48,7 +48,7 @@ function boot(){
     tray.setContextMenu(contextMenu);
     tray.on('click', () => win.show());
 
-    ipcMain.on('newMessage', () => {
+    ipcMain.on('ping', () => {
         if (!win.isFocused()){
             win.flashFrame(true);
             tray.setImage(path.join(app.getAppPath(), './imgs/notif.png'));
