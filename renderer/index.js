@@ -21,7 +21,8 @@ const hostBtn = g('hostBtn'),
     endWhenFound = g('endWhenFound'),
     manualConnect = g('manualConnect'),
     manualConnectBtn = g('manualConnectBtn'),
-    manualHost = g('manualHost');
+    manualHost = g('manualHost'),
+    messageInput = g('messageInput');
 
 let host, wss, server;
 let halt = false;
@@ -191,9 +192,9 @@ function connectToServer(hoster, ip){
 
     document.addEventListener('keydown', sendMessage);
     function sendMessage(event){
-        if (event.key === 'Enter' && document.activeElement === g('messageInput')){
-            ws.send(newMessage('message', username.value || 'Guest', g('messageInput').value));
-            g('messageInput').value = '';
+        if (event.key === 'Enter' && document.activeElement === messageInput && messageInput.value.trim().length > 0){
+            ws.send(newMessage('message', username.value || 'Guest', messageInput.value.trim()));
+            messageInput.value = '';
         };
     };
 
