@@ -96,8 +96,8 @@ function hostServer(){
                 } else{
                     history.push(message);
                     sendToAll(message);
-                }
-                
+                };
+                history = history.slice(-100);
             });
             ws.on('close', (code, reason) => {
                 if (reason) {
