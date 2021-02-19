@@ -3,6 +3,8 @@ const path = require('path');
 
 Menu.setApplicationMenu(null);
 
+let tray;
+
 function boot(){
     const win = new BrowserWindow({
         width: 400,
@@ -62,3 +64,4 @@ function boot(){
 };
 
 app.on('ready', boot);
+app.on('before-quit', () => tray.destroy());

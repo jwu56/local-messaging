@@ -241,21 +241,16 @@ function runSearches(){
     searchProgress.style.display = 'block';
 
     function search(min, max){
-        console.time('Section');
         if (!halt) {
             setSearchStatus(`Scanning ${ip}.${min}.0 to ${ip}.${max}.255`);
-            
-        }
+        };
         searchServers(min, max)
         .then(array => {
-            console.timeEnd('Section');
-
             if (min < 251) {
                 searchProgress.value += 0.1;
                 search(min + 25, max + 25);
             } else {
                 ipcRenderer.send('ping', true);
-                console.timeEnd('Whole');
                 setSearchStatus('Finished Scan');
                 setTimeout(() => {
                     setSearchStatus('');
@@ -275,11 +270,9 @@ function runSearches(){
                 searchBox.appendChild(ipBtn);
                 ipBtn.onclick = () => connectToServer(false, ip);
 
-                const http = require('http');
-
                 const req = http.request({hostname: ip, port: port, method: 'GET'}, res => {
                     res.on('data', data => {
-                        ipBtn.innerHTML += `${data.toString()} (${ip})`;
+                        ipBtn.innerHTML = `${data.toString()} (${ip})`;
                     });
                 });
                 req.on('error', error => {
@@ -293,7 +286,6 @@ function runSearches(){
             console.error(error);
         });
     };
-    console.time('Whole');
     search(1, 25);
 
     function searchServers(minI, maxI){
