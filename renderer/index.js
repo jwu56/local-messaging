@@ -22,7 +22,8 @@ const hostBtn = g('hostBtn'),
     manualConnect = g('manualConnect'),
     manualConnectBtn = g('manualConnectBtn'),
     manualHost = g('manualHost'),
-    messageInput = g('messageInput');
+    messageInput = g('messageInput'),
+    memberList = g('memberList');
 
 let host, wss, server;
 let halt = false;
@@ -89,10 +90,16 @@ function hostServer(){
 
             ws.on('message', message => {
                 if (JSON.parse(message).type === 'data'){
-                    ws.username = JSON.parse(message).data;
-                    const msg = newMessage('system join', 'Global System', `${ws.username} has joined`);
+                    const data = JSON.parse(JSON.parse(message).data);
+                    console.log(data, data.username, typeof data);
+                    ws.username = data.username;
+                    ws.host = data.host;
+                    console.log(ws);
+                    const msg = newMessage('system join', 'Global System', `${ws.username}${ws.host ? ' (host)' : ''} has joined`);
                     history.push(msg);
                     sendToAll(msg);
+
+                    sendMemberList(); 
                 } else{
                     history.push(message);
                     sendToAll(message);
@@ -109,14 +116,22 @@ function hostServer(){
                     history.push(msg);
                     sendToAll(msg);
                 };
+                sendMemberList();
             });
 
             function sendToAll(message){
                 wss.clients.forEach(ws => ws.send(message))
             };
+            function sendMemberList(){
+                let memberList = [];
+                wss.clients.forEach(ws => {
+                    memberList.push({username: ws.username, host: ws.host});
+                });
+                sendToAll(newMessage('memberList', null, memberList));
+            };
         });
         connectToServer(true)
-    }
+    };
 };
 
 function connectToServer(hoster, ip){
@@ -161,7 +176,7 @@ function connectToServer(hoster, ip){
         clearTimeout(timeout);
         infoStatus.innerHTML = 'Connected';
         parseMessage(JSON.parse(newMessage('system', 'Local System', `Connected to http://${host}:${port}`)));
-        ws.send(newMessage('data', null, username.value));
+        ws.send(newMessage('data', null, JSON.stringify({username: username.value, host: hoster ? true : false})));
     });
 
     ws.on('message', message => {
@@ -171,6 +186,11 @@ function connectToServer(hoster, ip){
                 data = JSON.parse(data);
                 parseMessage(data);
             })
+        } else if (message.type === 'memberList') {
+            memberList.innerHTML = '';
+            message.data.forEach(member => {
+                memberList.innerHTML += `<div>${member.username}${member.host ? ' (host)' : ''}</div>`;
+            });
         } else {
             parseMessage(message);
         };
@@ -188,6 +208,8 @@ function connectToServer(hoster, ip){
         document.removeEventListener('keydown', sendMessage);
         infoStatus.innerHTML = 'Disconnected';
         manualConnect.style.display = 'block';
+
+        memberList.innerHTML = '';
     });
 
     document.addEventListener('keydown', sendMessage);

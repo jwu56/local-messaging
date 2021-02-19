@@ -38,3 +38,10 @@ section {
 .error {
     color: red;
 }
+#memberListDiv {
+    position: absolute;
+    top: 347px;
+    left: 250px;
+    padding-left: 10px;
+    border-left: solid black 1px;
+}
