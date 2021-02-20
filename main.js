@@ -8,7 +8,7 @@ let tray;
 function boot(){
     const win = new BrowserWindow({
         width: 400,
-        height: 550,
+        height: 600,
         show: false,
         webPreferences: {
             nodeIntegration: true
