@@ -53,6 +53,15 @@ function generateid(length) {
     return result;
 };
 
+joinWhenFound.addEventListener('input', () => {
+    if (joinWhenFound.checked) {
+        endWhenFound.checked = true;
+        endWhenFound.disabled = true;
+    } else {
+        endWhenFound.disabled = false;
+    };
+});
+
 //#endregion
 
 function endSearch(ip){
