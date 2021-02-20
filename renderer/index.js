@@ -48,7 +48,7 @@ username.value = `Guest_${generateid(5)}`;
 function generateid(length) {
     let result = '';
     const characters = '0123456789'; //ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
-    for ( var i = 0; i < length; i++ ) {
+    for ( let i = 0; i < length; i++ ) {
        result += characters.charAt(Math.floor(Math.random() * characters.length));
     };
     return result;
@@ -94,6 +94,9 @@ function endSearch(ip){
 function hostServer(){
     if (!username.value) {
         configError('Please enter a username');
+        return;
+    } else if (!navigator.onLine){
+        configError('Not connected to a network');
         return;
     };
 
@@ -184,6 +187,10 @@ function connectToServer(hoster, ip){
             configError('Please enter a username');
             infoStatus.innerHTML = 'Disconnected';
             return;
+        }  else if (!navigator.onLine){
+            configError('Not connected to a network');
+            infoStatus.innerHTML = 'Disconnected';
+            return;
         };
         host = ip;
         chatBox.innerHTML += '<div>=========================</div>';
@@ -271,6 +278,11 @@ function connectToServer(hoster, ip){
 };
 
 function runSearches(){
+    if (!navigator.onLine){
+        configError('Not connected to a network');
+        return;
+    };
+    
     halt = false;
     toggleSearchBtns(false);
 
