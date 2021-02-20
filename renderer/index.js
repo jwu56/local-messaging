@@ -32,7 +32,7 @@ const hostBtn = g('hostBtn'),
 
 let host, wss, server;
 let halt = false;
-const port = 42069;
+const port = 121;
 let recentlyConnected = [];
 
 hostBtn.addEventListener('click', hostServer);
