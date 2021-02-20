@@ -57,3 +57,9 @@ h3 {
 #controlPanel {
     margin: 10px 0;
 }
+#wifi {
+    float: right;
+    width: 25px;
+    height: 25px;
+    margin-right: 10px;
+}

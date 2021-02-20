@@ -25,7 +25,8 @@ const hostBtn = g('hostBtn'),
     manualHost = g('manualHost'),
     messageInput = g('messageInput'),
     memberList = g('memberList'),
-    joinWhenFound = g('joinWhenFound');
+    joinWhenFound = g('joinWhenFound'),
+    wifi = g('wifi');
 
 let host, wss, server;
 let halt = false;
@@ -61,6 +62,17 @@ joinWhenFound.addEventListener('input', () => {
         endWhenFound.disabled = false;
     };
 });
+
+updateConnection();
+window.addEventListener('online', updateConnection);
+window.addEventListener('offline', updateConnection);
+function updateConnection(){
+    if (navigator.onLine){
+        wifi.src = '../imgs/wifiConnected.png';
+    } else {
+        wifi.src = '../imgs/wifiDisconnected.png';
+    };
+};
 
 //#endregion
 
