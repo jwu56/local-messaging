@@ -45,3 +45,9 @@ section {
     padding-left: 10px;
     border-left: solid black 1px;
 }
+.connectionName {
+    color: grey;
+}
+#memberList {
+    font-size: 0.8em;
+}

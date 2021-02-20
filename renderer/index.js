@@ -32,7 +32,6 @@ const port = 42069;
 
 hostBtn.addEventListener('click', hostServer);
 searchServersBtn.addEventListener('click', runSearches);
-
 cancelSearchBtn.addEventListener('click', endSearch);
 manualConnectBtn.addEventListener('click', () => {
     if (!manualHost.value){
@@ -41,6 +40,18 @@ manualConnectBtn.addEventListener('click', () => {
     };
     connectToServer(false, manualHost.value);
 });
+
+username.value = `Guest_${generateid(5)}`;
+
+function generateid(length) {
+    let result = '';
+    const characters = '0123456789'; //ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
+    for ( var i = 0; i < length; i++ ) {
+       result += characters.charAt(Math.floor(Math.random() * characters.length));
+    };
+    return result;
+};
+
 //#endregion
 
 function endSearch(){
@@ -111,6 +122,7 @@ function hostServer(){
                 };
                 history = history.slice(-100);
             });
+
             ws.on('close', (code, reason) => {
                 if (reason) {
                     const msg = newMessage('system leave', 'Global System', `${reason} has left`);
@@ -198,10 +210,11 @@ function connectToServer(hoster, ip){
             memberList.innerHTML = '';
 
             message.data.forEach(member => {
-                const usernameEm = document.createElement('u');
-                usernameEm.textContent = member.username;
+                const usernameSpan = document.createElement('span');
+                usernameSpan.setAttribute('class', 'connectionName');
+                usernameSpan.textContent = member.username;
                 const mainDiv = document.createElement('div');
-                mainDiv.appendChild(usernameEm);
+                mainDiv.appendChild(usernameSpan);
                 mainDiv.innerHTML += `${member.host ? ' (host)' : ''}${member.id === ws.id ? ' (you)' : ''}`;
                 memberList.appendChild(mainDiv);
             });
