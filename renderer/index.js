@@ -55,7 +55,7 @@ function generateid(length) {
 
 //#endregion
 
-function endSearch(){
+function endSearch(ip){
     halt = true;
     setSearchStatus('Ended scan');
     toggleSearchBtns(true);
@@ -66,6 +66,8 @@ function endSearch(){
             document.onclick = null;
         };
     }, 100);
+
+    if (ip) connectToServer(false, ip);
 };
 
 function hostServer(){
@@ -298,7 +300,7 @@ function runSearches(){
                 req.on('error', error => {
                     console.error(error)
                 });
-                req.end()
+                req.end();
             });
     
         })
@@ -337,12 +339,15 @@ function runSearches(){
                         --socketNum;
                         if (status == "open"){
                             addresses.push(`${ip}.${i}.${j}`);
+
+                            if (endWhenFound.checked){
+                                endSearch(joinWhenFound.checked ? addresses[0] : false);
+                                resolve(addresses);
+                                return;
+                            };
                         };
                         if (socketNum === 0) {
                             resolve(addresses);
-                            if (addresses.length > 0 && endWhenFound.checked){
-                                endSearch();
-                            };
                         };
                     });
                     socket.connect(port, `${ip}.${i}.${j}`);
