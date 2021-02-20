@@ -26,11 +26,14 @@ const hostBtn = g('hostBtn'),
     messageInput = g('messageInput'),
     memberList = g('memberList'),
     joinWhenFound = g('joinWhenFound'),
-    wifi = g('wifi');
+    wifi = g('wifi'),
+    recentConnections = g('recentConnections'),
+    recentConnectionsDiv = g('recentConnectionsDiv');
 
 let host, wss, server;
 let halt = false;
 const port = 42069;
+let recentlyConnected = [];
 
 hostBtn.addEventListener('click', hostServer);
 searchServersBtn.addEventListener('click', runSearches);
@@ -241,6 +244,21 @@ function connectToServer(hoster, ip){
                     mainDiv.innerHTML += `${member.host ? ' (host)' : ''}${member.id === ws.id ? ' (you)' : ''}`;
 
                     memberList.appendChild(mainDiv);
+
+                    if (member.host && member.id !== ws.id){
+                        recentlyConnected = recentlyConnected.filter(value => value.ip !== host);
+                        recentlyConnected.push({host: member.username, ip: host});
+                        recentlyConnected = recentlyConnected.slice(-5);
+
+                        recentConnections.innerHTML = '';
+
+                        recentlyConnected.forEach(server => {
+                            const ipBtn = document.createElement('button');
+                            ipBtn.textContent = `${server.host} (${server.ip})`;
+                            recentConnections.appendChild(ipBtn);
+                            ipBtn.onclick = () => connectToServer(false, server.ip);
+                        });
+                    };
                 });
                 break;
 
@@ -282,7 +300,7 @@ function runSearches(){
         configError('Not connected to a network');
         return;
     };
-    
+
     halt = false;
     toggleSearchBtns(false);
 
@@ -441,6 +459,7 @@ function toggleConnectionBtns(normal){
     searchServersBtn.style.display = normal ? 'inline-block' : 'none';
     disconnectBtn.style.display = normal ? 'none' : 'inline-block';
     manualConnect.style.display = normal ? 'block' : 'none';
+    recentConnectionsDiv.style.display = normal ? 'block' : 'none';
     if (normal) {
         username.removeAttribute('readonly');
         infoHost.innerHTML = '';
