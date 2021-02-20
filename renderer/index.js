@@ -24,7 +24,8 @@ const hostBtn = g('hostBtn'),
     manualConnectBtn = g('manualConnectBtn'),
     manualHost = g('manualHost'),
     messageInput = g('messageInput'),
-    memberList = g('memberList');
+    memberList = g('memberList'),
+    joinWhenFound = g('joinWhenFound');
 
 let host, wss, server;
 let halt = false;
@@ -56,12 +57,15 @@ function generateid(length) {
 
 function endSearch(){
     halt = true;
-    setSearchStatus('Ending scan...');
+    setSearchStatus('Ended scan');
+    toggleSearchBtns(true);
 
     setTimeout(() => {
-        setSearchStatus('');
-        toggleSearchBtns(true);
-    }, 3000);
+        document.onclick = () => {
+            setSearchStatus('');
+            document.onclick = null;
+        };
+    }, 100);
 };
 
 function hostServer(){
@@ -249,32 +253,35 @@ function runSearches(){
 
     searchBox.style.display = 'block';
     searchBox.innerHTML = '';
-    let a = 1;
 
     let ip = getIp().split('.');
     ip.splice(-2, 2);
     ip = ip.join('.');
 
     searchProgress.value = 0;
+    search(1, 25);
 
     function search(min, max){
-        if (!halt) {
-            setSearchStatus(`Scanning ${ip}.${min}.0 to ${ip}.${max}.255`);
-        };
+        if (halt) return;
+
+        setSearchStatus(`Scanning ${ip}.${min}.0 to ${ip}.${max}.255`);
         searchServers(min, max)
         .then(array => {
             if (min < 251) {
-                searchProgress.value += 0.1;
+                if (!halt) searchProgress.value += 0.1;
                 search(min + 25, max + 25);
             } else {
                 ipcRenderer.send('ping', true);
                 setSearchStatus('Finished Scan');
-                setTimeout(() => {
-                    setSearchStatus('');
-                    toggleSearchBtns(true);
-                }, 3000);
+                toggleSearchBtns(true);
 
-            }
+                setTimeout(() => {
+                    document.onclick = () => {
+                        setSearchStatus('');
+                        document.onclick = null;
+                    };
+                }, 100);
+            };
 
             if (array.length < 1) return;
 
@@ -299,7 +306,6 @@ function runSearches(){
             console.error(error);
         });
     };
-    search(1, 25);
 
     function searchServers(minI, maxI){
         const net = require('net');
