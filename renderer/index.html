@@ -6,7 +6,7 @@
 
     <body>
         <div id="memberListDiv">
-            <strong>Connections:</strong>
+            <strong title="List of connected members to the server">Connections:</strong>
             <div id="memberList">
 
             </div>
@@ -38,16 +38,16 @@
 
         <section id="config">
             <div>
-                <label for="endWhenFound">End search when server found?</label>
+                <label for="endWhenFound" title="Will end the network scan when an open server is found">End search when server found?</label>
                 <input type="checkbox" id="endWhenFound" checked>
             </div>
             <div>
-                <label for="joinWhenFound">Auto-join when server found?</label>
+                <label for="joinWhenFound" title="Will join the first open server that is found when scanning">Auto-join when server found?</label>
                 <input type="checkbox" id="joinWhenFound">
             </div>
             <div id="controlPanel">
-                <button id="hostBtn">Host Server</button>
-                <button id="searchServersBtn">Search for Servers</button>
+                <button id="hostBtn" title="Host a server on your local network">Host Server</button>
+                <button id="searchServersBtn" title="Scan for open servers on your local network. Warning: may cause lag">Search for Servers</button>
                 <button id="cancelSearchBtn" style="display: none;">Cancel Search</button>
                 <button id="disconnectBtn" style="display: none;">Disconnect</button>
             </div>
@@ -61,7 +61,7 @@
             </div>
 
             <div id="manualConnect">
-                <h3>Manually connect</h3>
+                <h3 title="Enter the host address of the server to manually connect">Manually connect</h3>
                 <input type="text" id="manualHost" placeholder="Host Address">
 
                 <button id="manualConnectBtn">Connect</button>
