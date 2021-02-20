@@ -60,11 +60,7 @@ function endSearch(){
 
     setTimeout(() => {
         setSearchStatus('');
-        searchProgress.style.display = 'none';
-        searchServersBtn.style.display = 'inline';
-        cancelSearchBtn.style.display = 'none';
-        hostBtn.style.display = 'inline';
-        manualConnect.style.display = 'block';
+        toggleSearchBtns(true);
     }, 3000);
 };
 
@@ -155,6 +151,7 @@ function connectToServer(hoster, ip){
     searchBox.style.display = 'none';
     searchBox.innerHTML = '';
     infoStatus.innerHTML = 'Connecting';
+
     if (!hoster){
         if (!username.value) {
             configError('Please enter a username');
@@ -165,28 +162,16 @@ function connectToServer(hoster, ip){
         chatBox.innerHTML += '<div>=========================</div>';
     };
 
-    username.readOnly = 'true';
+    username.setAttribute('readonly', true);
     infoHost.innerHTML = host;
     infoPort.innerHTML = port;
 
     const ws = new WebSocket(`http://${host}:${port}`);
 
-    let timeout = setTimeout(() => {
-        disconnectAll();
-    }, 10000);
+    let timeout = setTimeout(disconnectAll, 10000);
 
     ws.on('error', error => {
         parseMessage(JSON.parse(newMessage('system error', 'Local System', `There was an error connecting to the server: ${error}`)));
-        hostBtn.style.display = 'inline-block';
-        searchServersBtn.style.display = 'inline-block';
-        disconnectBtn.style.display = 'none';
-
-        username.removeAttribute('readonly');
-        infoHost.innerHTML = '';
-        infoPort.innerHTML = '';
-        document.removeEventListener('keydown', sendMessage);
-        infoStatus.innerHTML = 'Disconnected';
-        manualConnect.style.display = 'block';
     });
 
     ws.on('open', () => {
@@ -201,47 +186,46 @@ function connectToServer(hoster, ip){
     ws.on('message', message => {
         message = JSON.parse(message);
 
-        if (message.type === 'history') {
-            message.data.forEach(data => {
-                data = JSON.parse(data);
-                parseMessage(data);
-            });
-        } else if (message.type === 'memberList') {
-            memberList.innerHTML = '';
+        switch (message.type) {
+            case 'history':
+                message.data.forEach(data => {
+                    data = JSON.parse(data);
+                    parseMessage(data);
+                });
+                break;
 
-            message.data.forEach(member => {
-                const usernameSpan = document.createElement('span');
-                usernameSpan.setAttribute('class', 'connectionName');
-                usernameSpan.textContent = member.username;
-                const mainDiv = document.createElement('div');
-                mainDiv.appendChild(usernameSpan);
-                mainDiv.innerHTML += `${member.host ? ' (host)' : ''}${member.id === ws.id ? ' (you)' : ''}`;
-                memberList.appendChild(mainDiv);
-            });
-        } else if (message.type === 'data'){
-            ws.id = message.data;
-        } else {
-            parseMessage(message);
+            case 'memberList':
+                memberList.innerHTML = '';
+
+                message.data.forEach(member => {
+                    const usernameSpan = document.createElement('span');
+                    usernameSpan.setAttribute('class', 'connectionName');
+                    usernameSpan.textContent = member.username;
+
+                    const mainDiv = document.createElement('div');
+                    mainDiv.appendChild(usernameSpan);
+                    mainDiv.innerHTML += `${member.host ? ' (host)' : ''}${member.id === ws.id ? ' (you)' : ''}`;
+
+                    memberList.appendChild(mainDiv);
+                });
+                break;
+
+            case 'data':
+                ws.id = message.data;
+                break;
+
+            default: 
+                parseMessage(message);
         };
     });
 
     ws.on('close', () => {
         parseMessage(JSON.parse(newMessage('system leave', 'Local System', 'Connection closed')));
-        hostBtn.style.display = 'inline-block';
-        searchServersBtn.style.display = 'inline-block';
-        disconnectBtn.style.display = 'none';
-
-        username.removeAttribute('readonly');
-        infoHost.innerHTML = '';
-        infoPort.innerHTML = '';
-        document.removeEventListener('keydown', sendMessage);
-        infoStatus.innerHTML = 'Disconnected';
-        manualConnect.style.display = 'block';
-
-        memberList.innerHTML = '';
+        toggleConnectionBtns(true);
     });
 
-    document.addEventListener('keydown', sendMessage);
+    document.onkeydown = sendMessage;
+
     function sendMessage(event){
         if (event.key === 'Enter' && document.activeElement === messageInput && messageInput.value.trim().length > 0){
             ws.send(newMessage('message', username.value || 'Guest', messageInput.value.trim()));
@@ -249,37 +233,19 @@ function connectToServer(hoster, ip){
         };
     };
 
-    hostBtn.style.display = 'none';
-    searchServersBtn.style.display = 'none';
-    disconnectBtn.style.display = 'inline-block';
-
-    manualConnect.style.display = 'none';
-
+    toggleConnectionBtns(false);
     disconnectBtn.onclick = disconnectAll;
 
     function disconnectAll(){
         if (wss) wss.close();
         if (server) server.close();
         ws.close(1000, username.value);
-    
-        hostBtn.style.display = 'inline-block';
-        searchServersBtn.style.display = 'inline-block';
-        disconnectBtn.style.display = 'none';
-
-        username.removeAttribute('readonly');
-        infoHost.innerHTML = '';
-        infoPort.innerHTML = '';
-
-        infoStatus.innerHTML = 'Disconnected';
     };
 };
 
 function runSearches(){
     halt = false;
-    hostBtn.style.display = 'none';
-    searchServersBtn.style.display = 'none';
-    cancelSearchBtn.style.display = 'inline';
-    manualConnect.style.display = 'none';
+    toggleSearchBtns(false);
 
     searchBox.style.display = 'block';
     searchBox.innerHTML = '';
@@ -290,7 +256,6 @@ function runSearches(){
     ip = ip.join('.');
 
     searchProgress.value = 0;
-    searchProgress.style.display = 'block';
 
     function search(min, max){
         if (!halt) {
@@ -306,13 +271,9 @@ function runSearches(){
                 setSearchStatus('Finished Scan');
                 setTimeout(() => {
                     setSearchStatus('');
-                    searchProgress.style.display = 'none';
+                    toggleSearchBtns(true);
                 }, 3000);
 
-                searchServersBtn.style.display = 'inline';
-                hostBtn.style.display = 'inline';
-                cancelSearchBtn.style.display = 'none';
-                manualConnect.style.display = 'block';
             }
 
             if (array.length < 1) return;
@@ -385,9 +346,9 @@ function runSearches(){
         return promise;
     };
 };
-function setSearchStatus(message){
-    searchStatus.innerHTML = message;
-};
+
+function setSearchStatus(message){searchStatus.innerHTML = message;};
+
 function parseMessage(data){
     const message = document.createElement('div');
     message.setAttribute('class', data.type);
@@ -416,11 +377,31 @@ function configError(error){
     setTimeout(() => errorDisplay.innerHTML = '', 3000);
 };
 
-function scrollDown(){
-    chatBox.scrollTop = chatBox.scrollHeight - chatBox.clientHeight;
-}
+function scrollDown(){chatBox.scrollTop = chatBox.scrollHeight - chatBox.clientHeight;};
 
 function getIp(){
     const networks = networkInterfaces().WiFi;
     return networks.filter(network => network.family === "IPv4")[0].address;
+};
+
+function toggleSearchBtns(normal){
+    searchProgress.style.display = normal ? 'none' : 'block';
+    searchServersBtn.style.display = normal ? 'inline' : 'none';
+    cancelSearchBtn.style.display = normal ? 'none': 'inline';
+    hostBtn.style.display = normal ? 'inline' : 'none';
+    manualConnect.style.display = normal ? 'block' : 'none';
+};
+
+function toggleConnectionBtns(normal){
+    hostBtn.style.display = normal ? 'inline-block' : 'none';
+    searchServersBtn.style.display = normal ? 'inline-block' : 'none';
+    disconnectBtn.style.display = normal ? 'none' : 'inline-block';
+    manualConnect.style.display = normal ? 'block' : 'none';
+    if (normal) {
+        username.removeAttribute('readonly');
+        infoHost.innerHTML = '';
+        infoPort.innerHTML = '';
+        infoStatus.innerHTML = 'Disconnected';
+        memberList.innerHTML = '';
+    };
 };
