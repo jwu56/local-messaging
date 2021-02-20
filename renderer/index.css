@@ -4,6 +4,9 @@
 section {
     margin: 5px;
 }
+h3 {
+    margin: 10px 0;
+}
 #chatBox {
     padding: 10px;
     border: solid black 1px;
@@ -50,4 +53,7 @@ section {
 }
 #memberList {
     font-size: 0.8em;
+}
+#controlPanel {
+    margin: 10px 0;
 }
