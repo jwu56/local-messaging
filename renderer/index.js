@@ -33,6 +33,8 @@ const hostBtn = g('hostBtn'),
     recentConnections = g('recentConnections'),
     recentConnectionsDiv = g('recentConnectionsDiv');
 
+setupAutoupdating();
+
 let host, wss, server;
 let halt = false;
 const port = 121;
@@ -476,5 +478,29 @@ function toggleConnectionBtns(normal){
 };
 
 function setupAutoupdating(){
+    const autoUpdateStatus = g('autoUpdateStatus'),
+        checkUpdateBtn = g('checkUpdateBtn'),
+        downloadUpdateBtn = g('downloadUpdateBtn'),
+        downloadUpdateProgress = g('downloadUpdateProgress'),
+        installUpdateBtn = g('installUpdateBtn');
+    
+    ipcRenderer.send('autoUpdateCheck', true);
+    
+    checkUpdateBtn.onclick = () => ipcRenderer.send('autoUpdater', 'checkUpdate');
+    downloadUpdateBtn.onclick = () => ipcRenderer.send('autoUpdater', 'downloadUpdate');
+    installUpdateBtn.onclick = () => ipcRenderer.send('autoUpdater', 'installUpdate');
 
+    ipcRenderer.on('autoUpdater', (event, { type, text, data }) => {
+        autoUpdateStatus.textContent = text;
+
+        autoUpdateStatus.title = type === 'error' ? data : text;
+        checkUpdateBtn.style.display = type === 'error' || type === 'updateNone' ? 'inline' : 'none';
+        downloadUpdateBtn.style.display = type === 'updateAvailable' ? 'inline' :'none';
+        downloadUpdateProgress.style.display = type === 'updateDownloading' ? 'inline' : 'none';
+        installUpdateBtn.style.display = type === 'updateDownloaded' ? 'inline' : 'none';
+
+        downloadUpdateProgress.value = type === 'updateDownload' ? data.percent / 100 : 0;
+
+        document.onmousedown = () => { if (['error', 'updateNone'].includes(type)) autoUpdateStatus.textContent = ''; };
+    });
 };

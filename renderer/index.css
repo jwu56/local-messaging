@@ -54,6 +54,7 @@ h3 {
     margin: 10px 0;
 }
 #wifi {
+    float: right;
     width: 25px;
     height: 25px;
 }
@@ -62,4 +63,12 @@ h3 {
 }
 #downloadUpdateProgress {
     width: 40%;;
+}
+#autoUpdateStatus {
+    font-size: 0.8em;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+#statusBar {
+    border-bottom: black solid 1px;
 }
