@@ -5,7 +5,16 @@
     </head>
 
     <body>
-        <img id="wifi" src="../imgs/wifi.png">
+        <section id="statusBar">
+            <img id="wifi" src="../imgs/wifi.png">
+            <span id="autoUpdateStatus"></span>
+
+            <button id="downloadUpdateBtn" style="display: none;">Download Update</button>
+            <progress id="downloadUpdateProgress" value="0" style="display: none;"></progress>
+
+            <button id="installUpdateBtn" style="display: none;">Install Update</button>
+        </section>
+        
         <section id="infoSection">
 
             <div><strong>Host Address:</strong>
@@ -29,14 +38,13 @@
             <input id="messageInput" type="text" placeholder="Enter Message" spellcheck="false">
         </section>
 
-        <div id="memberListDiv">
-            <strong title="List of connected members to the server">Connections:</strong>
-            <div id="memberList">
-
-            </div>
-        </div>
-
         <section id="config">
+            <div id="memberListDiv">
+                <strong title="List of connected members to the server">Connections:</strong>
+                <div id="memberList">
+    
+                </div>
+            </div>
             <div>
                 <label for="endWhenFound" title="Will end the network scan when an open server is found">End search when server found?</label>
                 <input type="checkbox" id="endWhenFound" checked>
@@ -75,8 +83,6 @@
                 </div>
             </div>
         </section>
-
-
 
         <script src="index.js"></script>
     </body>

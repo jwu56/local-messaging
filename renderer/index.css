@@ -42,9 +42,8 @@ h3 {
     color: red;
 }
 #memberListDiv {
-    position: absolute;
-    top: 347px;
-    left: 250px;
+    float: right;
+    margin-right: 10px;
     padding-left: 10px;
     border-left: solid black 1px;
 }
@@ -58,8 +57,6 @@ h3 {
     margin: 10px 0;
 }
 #wifi {
-    float: right;
     width: 25px;
     height: 25px;
-    margin-right: 10px;
 }
