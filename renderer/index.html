@@ -39,17 +39,18 @@
         </section>
 
         <section id="config">
-            <div id="memberListDiv">
+            <button id="disconnectBtn" style="display: none;">Disconnect</button>
+            <div id="memberListDiv" style="display: none;">
                 <strong title="List of connected members to the server">Connections:</strong>
                 <div id="memberList">
     
                 </div>
             </div>
-            <div>
+            <div id="endWhenFoundDiv">
                 <label for="endWhenFound" title="Will end the network scan when an open server is found">End search when server found?</label>
                 <input type="checkbox" id="endWhenFound" checked>
             </div>
-            <div>
+            <div id="joinWhenFoundDiv">
                 <label for="joinWhenFound" title="Will join the first open server that is found when scanning">Auto-join when server found?</label>
                 <input type="checkbox" id="joinWhenFound">
             </div>
@@ -57,7 +58,6 @@
                 <button id="hostBtn" title="Host a server on your local network">Host Server</button>
                 <button id="searchServersBtn" title="Scan for open servers on your local network. Warning: may cause lag">Search for Servers</button>
                 <button id="cancelSearchBtn" style="display: none;">Cancel Search</button>
-                <button id="disconnectBtn" style="display: none;">Disconnect</button>
             </div>
 
             <div id="errorDisplay"></div>

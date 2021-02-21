@@ -20,12 +20,15 @@ const hostBtn = g('hostBtn'),
     searchBox = g('searchBox'),
     cancelSearchBtn = g('cancelSearchBtn'),
     endWhenFound = g('endWhenFound'),
+    endWhenFoundDiv = g('endWhenFoundDiv'),
     manualConnect = g('manualConnect'),
     manualConnectBtn = g('manualConnectBtn'),
     manualHost = g('manualHost'),
     messageInput = g('messageInput'),
     memberList = g('memberList'),
+    memberListDiv = g('memberListDiv'),
     joinWhenFound = g('joinWhenFound'),
+    joinWhenFoundDiv = g('joinWhenFoundDiv'),
     wifi = g('wifi'),
     recentConnections = g('recentConnections'),
     recentConnectionsDiv = g('recentConnectionsDiv');
@@ -91,7 +94,7 @@ function endSearch(ip){
         };
     }, 100);
 
-    if (ip) connectToServer(false, ip);
+    if (typeof ip === 'string') connectToServer(false, ip);
 };
 
 function hostServer(){
@@ -460,6 +463,9 @@ function toggleConnectionBtns(normal){
     disconnectBtn.style.display = normal ? 'none' : 'inline-block';
     manualConnect.style.display = normal ? 'block' : 'none';
     recentConnectionsDiv.style.display = normal ? 'block' : 'none';
+    memberListDiv.style.display = normal ? 'none' : 'block';
+    endWhenFoundDiv.style.display = normal ? 'block' : 'none';
+    joinWhenFoundDiv.style.display = normal ? 'block' : 'none';
     if (normal) {
         username.removeAttribute('readonly');
         infoHost.innerHTML = '';
@@ -467,4 +473,8 @@ function toggleConnectionBtns(normal){
         infoStatus.innerHTML = 'Disconnected';
         memberList.innerHTML = '';
     };
+};
+
+function setupAutoupdating(){
+
 };
