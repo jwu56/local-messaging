@@ -1,12 +1,13 @@
 {
   "name": "local-messaging",
-  "version": "1.0.0",
-  "description": "An Electron app for messaging on the same network using locally hosted web servers",
+  "version": "1.0.1",
+  "description": "A simple messaging app for use over local networks",
   "main": "main.js",
   "scripts": {
     "test": "electron .",
     "pack": "electron-builder --dir",
-    "dist": "electron-builder"
+    "dist": "electron-builder",
+    "publish": "build -p always"
   },
   "repository": {
     "type": "git",
@@ -20,6 +21,7 @@
   },
   "homepage": "https://github.com/KLZX121/local-messaging#readme",
   "dependencies": {
+    "electron-updater": "^4.3.5",
     "ws": "^7.4.3"
   },
   "devDependencies": {
@@ -27,7 +29,7 @@
     "electron-builder": "^22.9.1"
   },
   "build": {
-    "appId": "com.electron.localMessaging",
+    "appId": "com.klzx121.localMessaging",
     "productName": "Local Messaging"
   }
 }
