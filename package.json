@@ -1,13 +1,13 @@
 {
   "name": "local-messaging",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "A simple messaging app for use over local networks",
   "main": "main.js",
   "scripts": {
     "test": "electron .",
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
-    "publish": "build -p always"
+    "publish": "electron-builder -p always"
   },
   "repository": {
     "type": "git",
