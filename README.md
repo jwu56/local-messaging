@@ -1,7 +1,7 @@
 ## Local Messaging
 A simple messaging app for use over local networks.
 
-The main purpose of this app is for use on networks that have blocked social media sites, such as school WiFi. As the app hosts a server locally on the host's computer, it bypassess all restrictions on the network. 
+The main purpose of this app is for use on networks that have blocked social media sites, such as school WiFi. As the app hosts a server locally on the host's computer, it bypassess all restrictions on the network. The app is placed on your [system tray](#additional-features), so you can hide the app without it quitting. 
 
 ### Hosting
 Press the `Host Server` button under the chatbox, and a server will be automatically created using your IP address on port 121.
@@ -32,3 +32,4 @@ There are three ways to connect to a server:
 * **Username** - You can change your username from the default randomly generated username in the top of the screen, under Host Address, Port and Status. You will not be able to change it if you are connected to a server.
 * **Connections** - A list of members in the server you are currently connected to.
 * **WiFi** indicator - A WiFi symbol indicating whether you are connected to WiFi - you are required to be connected to a network for the app to work.
+* **System Tray** - The app will be hidden to your tray (the list of app icons on the right of your taskbar) when you close it (press the `X`), and you can show it again by pressing the app's icon in the tray. To quit the app, right click it in the tray and press `Quit`. Additionally, the app's icon will turn blue when it receives a notification such as a new message or server found when scanning the network.
