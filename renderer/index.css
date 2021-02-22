@@ -9,10 +9,11 @@ h3 {
 }
 #chatBox {
     padding: 10px;
-    border: solid black 1px;
+    outline: solid black 1px;
     height: 200px;
     overflow-y: scroll;
     font-size: 0.7em;
+    overflow-wrap: break-word;
 }
 #messageInput {
     width: 265px;

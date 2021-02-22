@@ -8,6 +8,8 @@ Multi-line input
 
 DynDNS / Bonjour-style discovery
 
+https://www.npmjs.com/package/bonjour
+
 More efficient IP scanning
 
 toggle notifications setting
@@ -35,14 +37,11 @@ show online/offline status of recently connected servers
 
 set header thingy when requests and stuff to authenticate
 
-chat overflow x = new line
-
 add message cap to chatbox
 
 persistent data - username, recent connections,
 
 focus on message input when enter pressed
-
 - make pressing enter on any input submit
 
 add send button next to message input
@@ -52,8 +51,6 @@ show release notes on update
 =========FIXES=========
 
 make sure http and websocket server is disconnecting properly 
-
-max character limit for message input
 
 LAGGING ON FOCUS?????
 
