@@ -171,6 +171,7 @@ function hostServer(){
 };
 
 function connectToServer(hoster, ip){
+    endSearch();
     searchBox.style.display = 'none';
     searchBox.innerHTML = '';
     infoStatus.innerHTML = 'Connecting';
@@ -463,6 +464,7 @@ function toggleSearchBtns(normal){
     cancelSearchBtn.style.display = normal ? 'none': 'inline';
     hostBtn.style.display = normal ? 'inline' : 'none';
     manualConnect.style.display = normal ? 'block' : 'none';
+    recentConnectionsDiv.style.display = normal ? 'block' : 'none';
 };
 
 function toggleConnectionBtns(normal){
