@@ -11,6 +11,7 @@ function boot(){
         width: 400,
         height: 600,
         show: false,
+        title: 'Local Messaging',
         webPreferences: {
             nodeIntegration: true
         }
