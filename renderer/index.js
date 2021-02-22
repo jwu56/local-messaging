@@ -2,7 +2,7 @@
 const http = require('http');
 const WebSocket = require('ws');
 
-const { networkInterfaces } = require('os');
+const { networkInterfaces } = require('os'); //used to get IP
 const { ipcRenderer} = require('electron');
 
 const g = document.getElementById.bind(document);
@@ -55,14 +55,14 @@ username.value = `Guest_${generateid(5)}`;
 
 function generateid(length) {
     let result = '';
-    const characters = '0123456789'; //ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
+    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     for ( let i = 0; i < length; i++ ) {
        result += characters.charAt(Math.floor(Math.random() * characters.length));
     };
     return result;
 };
 
-joinWhenFound.addEventListener('input', () => {
+joinWhenFound.addEventListener('input', () => { //when join when found option is checked, turns end when found on and disables it
     if (joinWhenFound.checked) {
         endWhenFound.checked = true;
         endWhenFound.disabled = true;
@@ -98,9 +98,9 @@ function hostServer(){
     infoStatus.innerHTML = 'Hosting';
 
     let history = [];
-    let wsId = 1;
+    let wsId = 1; //used to identify individual websockets
 
-    server = http.createServer((req, res) => {res.end(username.value)});
+    server = http.createServer((req, res) => {res.end(username.value)}); //ends with host name so network scanning can show host's name
     server.on('error', error => {
         server.close(); 
         parseMessage(JSON.parse(newMessage('system error', 'Local System', `There was an error hosting the server: ${error}`)));
@@ -108,7 +108,7 @@ function hostServer(){
     });
     server.listen(port, host, setupWs);
 
-    function setupWs(){
+    function setupWs(){ //sets up the websocket server 
         chatBox.innerHTML += '<div>=========================</div>';
         parseMessage(JSON.parse(newMessage('system', 'Local System', `Server hosted at http://${host}:${port}`)));
         wss = new WebSocket.Server({
@@ -118,13 +118,13 @@ function hostServer(){
         wss.on('connection', (ws, request) => {
 
             if (history.length > 0) {
-                ws.send(newMessage('history', null, history));
+                ws.send(newMessage('history', null, history)); //send chat history to connected websocket
             };
             ws.id = wsId++;
-            ws.send(newMessage('data', null, ws.id));
+            ws.send(newMessage('data', null, ws.id)); //assigns an id to the websocket
 
-            ws.on('message', message => {
-                if (JSON.parse(message).type === 'data'){
+            ws.on('message', message => { //handle incoming message from websocket
+                if (JSON.parse(message).type === 'data'){ //save username and if host of the websocket
                     const data = JSON.parse(JSON.parse(message).data);
 
                     ws.username = data.username;
@@ -134,12 +134,12 @@ function hostServer(){
                     history.push(msg);
                     sendToAll(msg);
 
-                    sendMemberList(); 
+                    sendMemberList(); //updates the connected members list
                 } else{
                     history.push(message);
                     sendToAll(message);
                 };
-                history = history.slice(-100);
+                history = history.slice(-100); //trims chat history to the latest 100
             });
 
             ws.on('close', (code, reason) => {
@@ -196,7 +196,7 @@ function connectToServer(hoster, ip){
 
     const ws = new WebSocket(`http://${host}:${port}`);
 
-    let timeout = setTimeout(disconnectAll, 10000);
+    let timeout = setTimeout(disconnectAll, 10000); //disconnects websocket if it fails to connect within 10 seconds
 
     ws.on('error', error => {
         parseMessage(JSON.parse(newMessage('system error', 'Local System', `There was an error connecting to the server: ${error}`)));
@@ -205,17 +205,17 @@ function connectToServer(hoster, ip){
     ws.on('open', () => {
         clearTimeout(timeout);
         infoStatus.innerHTML = 'Connected';
-
+        
         parseMessage(JSON.parse(newMessage('system', 'Local System', `Connected to http://${host}:${port}`)));
 
-        ws.send(newMessage('data', null, JSON.stringify({username: username.value, host: hoster ? true : false})));
+        ws.send(newMessage('data', null, JSON.stringify({username: username.value, host: hoster ? true : false}))); //send username and if host to websocket server
     });
 
-    ws.on('message', message => {
+    ws.on('message', message => { //handle incoming message from websocket server
         message = JSON.parse(message);
 
         switch (message.type) {
-            case 'history':
+            case 'history': //if receiving chat history
                 message.data.forEach(data => {
                     data = JSON.parse(data);
                     parseMessage(data);
@@ -236,7 +236,7 @@ function connectToServer(hoster, ip){
 
                     memberList.appendChild(mainDiv);
 
-                    if (member.host && member.id !== ws.id){
+                    if (member.host && member.id !== ws.id){ //adds the server to recently connected using the host's name and ip
                         recentlyConnected = recentlyConnected.filter(value => value.ip !== host);
                         recentlyConnected.push({host: member.username, ip: host});
                         recentlyConnected = recentlyConnected.slice(-5);
@@ -253,7 +253,7 @@ function connectToServer(hoster, ip){
                 });
                 break;
 
-            case 'data':
+            case 'data': //sets the websocket to the id assigned by the server
                 ws.id = message.data;
                 break;
 
@@ -269,7 +269,7 @@ function connectToServer(hoster, ip){
 
     document.onkeydown = sendMessage;
 
-    function sendMessage(event){
+    function sendMessage(event){ //send message to websocket server
         if (event.key === 'Enter' && document.activeElement === messageInput && messageInput.value.trim().length > 0){
             ws.send(newMessage('message', username.value || 'Guest', messageInput.value.trim()));
             messageInput.value = '';
@@ -300,7 +300,7 @@ function runSearches(){
 
     let ip = getIp().split('.');
     ip.splice(-2, 2);
-    ip = ip.join('.');
+    ip = ip.join('.'); //get the first two octets of the ip (xxx.xxx.123.123 - gets the x's)
 
     searchProgress.value = 0;
     search(1, 25);
@@ -309,9 +309,9 @@ function runSearches(){
         if (halt) return;
 
         setSearchStatus(`Scanning ${ip}.${min}.0 to ${ip}.${max}.255`);
-        searchServers(min, max)
+        searchServers(min, max) //search a range of 25 for the third octet, along with 0 - 255 for the last octet (normally third octet would be the same for all devices but some big networks have different third octets)
         .then(array => {
-            if (min < 251) {
+            if (min < 251) { //if search has not reached 255 yet than continue searching the next 25
                 if (!halt) searchProgress.value += 0.1;
                 search(min + 25, max + 25);
             } else {
@@ -329,12 +329,12 @@ function runSearches(){
 
             if (array.length < 1) return;
 
-            array.forEach(ip => {
+            array.forEach(ip => { //for each server found in the same range of 25 
                 const ipBtn = document.createElement('button');
                 searchBox.appendChild(ipBtn);
-                ipBtn.onclick = () => connectToServer(false, ip);
+                ipBtn.onclick = () => connectToServer(false, ip); //creates the button that will connect to the server
 
-                const req = http.request({hostname: ip, port: port, method: 'GET'}, res => {
+                const req = http.request({hostname: ip, port: port, method: 'GET'}, res => { //sends a request to the server for the host's username
                     res.on('data', data => {
                         ipBtn.innerHTML = `${data.toString()} (${ip})`;
                     });
@@ -420,20 +420,24 @@ function endSearch(ip){
 function parseMessage(data){
     const timeEm = document.createElement('em');
     timeEm.innerText = data.time;
+
     const usernameStrong = document.createElement('strong');
     usernameStrong.innerText = `${data.username}: `;
+
     const messageData = document.createElement('span');
     messageData.innerText = data.data;
+
     const message = document.createElement('div');
     message.setAttribute('class', data.type);
     message.append(timeEm, ' ', usernameStrong, messageData);
+
     chatBox.appendChild(message);
     scrollDown();
 
     ipcRenderer.send('ping', true);
 };
 
-function newMessage(type, username, data){
+function newMessage(type, username, data){ //convert this to a constructor maybe someday
     const date = new Date();
     const hours = date.getHours();
     const minutes = date.getMinutes();
