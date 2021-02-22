@@ -2,11 +2,17 @@
 
 add markdown support
 
+TOAST notifications
+
+Multi-line input
+
+DynDNS / Bonjour-style discovery
+
+More efficient IP scanning
+
 toggle notifications setting
 
 upload images to chat
-
-system notifications
 
 connection list
 - typing?
