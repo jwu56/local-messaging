@@ -35,8 +35,9 @@ const hostBtn = g('hostBtn'),
 
 setupAutoupdating();
 
-let host, wss, server;
+let host, wss, server, clientWs;
 let halt = false;
+let searching = false;
 const port = 121;
 let recentlyConnected = [];
 
@@ -171,7 +172,7 @@ function hostServer(){
 };
 
 function connectToServer(hoster, ip){
-    endSearch();
+    if (searching) endSearch();
     searchBox.style.display = 'none';
     searchBox.innerHTML = '';
     infoStatus.innerHTML = 'Connecting';
@@ -194,24 +195,24 @@ function connectToServer(hoster, ip){
     infoHost.innerHTML = host;
     infoPort.innerHTML = port;
 
-    const ws = new WebSocket(`http://${host}:${port}`);
+    clientWs = new WebSocket(`http://${host}:${port}`);
 
     let timeout = setTimeout(disconnectAll, 10000); //disconnects websocket if it fails to connect within 10 seconds
 
-    ws.on('error', error => {
+    clientWs.on('error', error => {
         parseMessage(JSON.parse(newMessage('system error', 'Local System', `There was an error connecting to the server: ${error}`)));
     });
 
-    ws.on('open', () => {
+    clientWs.on('open', () => {
         clearTimeout(timeout);
         infoStatus.innerHTML = 'Connected';
         
         parseMessage(JSON.parse(newMessage('system', 'Local System', `Connected to http://${host}:${port}`)));
 
-        ws.send(newMessage('data', null, JSON.stringify({username: username.value, host: hoster ? true : false}))); //send username and if host to websocket server
+        clientWs.send(newMessage('data', null, JSON.stringify({username: username.value, host: hoster ? true : false}))); //send username and if host to websocket server
     });
 
-    ws.on('message', message => { //handle incoming message from websocket server
+    clientWs.on('message', message => { //handle incoming message from websocket server
         message = JSON.parse(message);
 
         switch (message.type) {
@@ -232,11 +233,11 @@ function connectToServer(hoster, ip){
 
                     const mainDiv = document.createElement('div');
                     mainDiv.appendChild(usernameSpan);
-                    mainDiv.innerHTML += `${member.host ? ' (host)' : ''}${member.id === ws.id ? ' (you)' : ''}`;
+                    mainDiv.innerHTML += `${member.host ? ' (host)' : ''}${member.id === clientWs.id ? ' (you)' : ''}`;
 
                     memberList.appendChild(mainDiv);
 
-                    if (member.host && member.id !== ws.id){ //adds the server to recently connected using the host's name and ip
+                    if (member.host && member.id !== clientWs.id){ //adds the server to recently connected using the host's name and ip
                         recentlyConnected = recentlyConnected.filter(value => value.ip !== host);
                         recentlyConnected.push({host: member.username, ip: host});
                         recentlyConnected = recentlyConnected.slice(-5);
@@ -254,7 +255,7 @@ function connectToServer(hoster, ip){
                 break;
 
             case 'data': //sets the websocket to the id assigned by the server
-                ws.id = message.data;
+                clientWs.id = message.data;
                 break;
 
             default: 
@@ -262,7 +263,7 @@ function connectToServer(hoster, ip){
         };
     });
 
-    ws.on('close', () => {
+    clientWs.on('close', () => {
         parseMessage(JSON.parse(newMessage('system leave', 'Local System', 'Connection closed')));
         toggleConnectionBtns(true);
     });
@@ -271,7 +272,7 @@ function connectToServer(hoster, ip){
 
     function sendMessage(event){ //send message to websocket server
         if (event.key === 'Enter' && document.activeElement === messageInput && messageInput.value.trim().length > 0){
-            ws.send(newMessage('message', username.value || 'Guest', messageInput.value.trim()));
+            clientWs.send(newMessage('message', username.value || 'Guest', messageInput.value.trim()));
             messageInput.value = '';
         };
     };
@@ -279,13 +280,16 @@ function connectToServer(hoster, ip){
     toggleConnectionBtns(false);
     disconnectBtn.onclick = disconnectAll;
 
-    function disconnectAll(){
-        if (wss) wss.close();
-        if (server) server.close();
-        ws.close(1000, username.value);
-    };
+    
 };
-
+function disconnectAll(){
+    if (wss) {
+        wss.close();
+        server.close();
+        console.log(wss, server);
+    };
+    clientWs.close(1000, username.value);
+};
 function runSearches(){
     if (!navigator.onLine){
         configError('Not connected to a network');
@@ -293,6 +297,7 @@ function runSearches(){
     };
 
     halt = false;
+    searching = true;
     toggleSearchBtns(false);
 
     searchBox.style.display = 'block';
@@ -318,6 +323,7 @@ function runSearches(){
                 ipcRenderer.send('ping', true);
                 setSearchStatus('Finished Scan');
                 toggleSearchBtns(true);
+                searching = false;
 
                 setTimeout(() => {
                     document.onclick = () => {
@@ -404,8 +410,10 @@ function setSearchStatus(message){searchStatus.innerHTML = message;};
 
 function endSearch(ip){
     halt = true;
+    searching = false;
     setSearchStatus('Ended scan');
     toggleSearchBtns(true);
+    
 
     setTimeout(() => {
         document.onclick = () => {
