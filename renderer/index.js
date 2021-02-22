@@ -520,7 +520,7 @@ function setupAutoupdating(){
         downloadUpdateProgress.style.display = type === 'updateDownloading' ? 'inline' : 'none';
         installUpdateBtn.style.display = type === 'updateDownloaded' ? 'inline' : 'none';
 
-        downloadUpdateProgress.value = type === 'updateDownload' ? data.percent / 100 : 0;
+        downloadUpdateProgress.value = type === 'updateDownloading' ? data.percent / 100 : 0;
 
         document.onmousedown = () => { if (['error', 'updateNone'].includes(type)) autoUpdateStatus.style.color = 'black'; };
     });
