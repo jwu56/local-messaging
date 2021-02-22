@@ -13,7 +13,8 @@ function boot(){
         show: false,
         title: 'Local Messaging',
         webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: true,
+            enableRemoteModule: true
         }
     });
     win.loadFile('./renderer/index.html');

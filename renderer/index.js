@@ -33,6 +33,7 @@ const hostBtn = g('hostBtn'),
     recentConnections = g('recentConnections'),
     recentConnectionsDiv = g('recentConnectionsDiv');
 
+displayAppVersion();
 setupAutoupdating();
 
 let host, wss, server, clientWs;
@@ -524,4 +525,9 @@ function setupAutoupdating(){
 
         document.onmousedown = () => { if (['error', 'updateNone'].includes(type)) autoUpdateStatus.style.color = 'black'; };
     });
+};
+
+function displayAppVersion(){
+    const appVersion = g('appVersion');
+    appVersion.innerText = `v${require("electron").remote.app.getVersion()}`;
 };
