@@ -498,6 +498,7 @@ function setupAutoupdating(){
 
     ipcRenderer.on('autoUpdater', (event, { type, text, data }) => {
         autoUpdateStatus.textContent = text;
+        autoUpdateStatus.style.color = 'orange';
 
         autoUpdateStatus.title = type === 'error' ? data : text;
         checkUpdateBtn.style.display = type === 'error' || type === 'updateNone' ? 'inline' : 'none';
@@ -507,6 +508,6 @@ function setupAutoupdating(){
 
         downloadUpdateProgress.value = type === 'updateDownload' ? data.percent / 100 : 0;
 
-        document.onmousedown = () => { if (['error', 'updateNone'].includes(type)) autoUpdateStatus.textContent = ''; };
+        document.onmousedown = () => { if (['error', 'updateNone'].includes(type)) autoUpdateStatus.style.color = 'black'; };
     });
 };
