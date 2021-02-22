@@ -417,9 +417,15 @@ function runSearches(){
 function setSearchStatus(message){searchStatus.innerHTML = message;};
 
 function parseMessage(data){
+    const timeEm = document.createElement('em');
+    timeEm.innerText = data.time;
+    const usernameStrong = document.createElement('strong');
+    usernameStrong.innerText = `${data.username}: `;
+    const messageData = document.createElement('span');
+    messageData.innerText = data.data;
     const message = document.createElement('div');
     message.setAttribute('class', data.type);
-    message.innerHTML = `<em>${data.time} </em><strong>${data.username}: </strong>${data.data}`;
+    message.append(timeEm, ' ', usernameStrong, messageData);
     chatBox.appendChild(message);
     scrollDown();
 
