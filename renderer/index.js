@@ -84,21 +84,6 @@ function updateConnection(){
 
 //#endregion
 
-function endSearch(ip){
-    halt = true;
-    setSearchStatus('Ended scan');
-    toggleSearchBtns(true);
-
-    setTimeout(() => {
-        document.onclick = () => {
-            setSearchStatus('');
-            document.onclick = null;
-        };
-    }, 100);
-
-    if (typeof ip === 'string') connectToServer(false, ip);
-};
-
 function hostServer(){
     if (!username.value) {
         configError('Please enter a username');
@@ -415,6 +400,21 @@ function runSearches(){
 };
 
 function setSearchStatus(message){searchStatus.innerHTML = message;};
+
+function endSearch(ip){
+    halt = true;
+    setSearchStatus('Ended scan');
+    toggleSearchBtns(true);
+
+    setTimeout(() => {
+        document.onclick = () => {
+            setSearchStatus('');
+            document.onclick = null;
+        };
+    }, 100);
+
+    if (typeof ip === 'string') connectToServer(false, ip);
+};
 
 function parseMessage(data){
     const timeEm = document.createElement('em');
