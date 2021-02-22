@@ -11,6 +11,7 @@ DynDNS / Bonjour-style discovery
 https://www.npmjs.com/package/bonjour
 
 More efficient IP scanning
+- https://nodejs.org/api/worker_threads.html
 
 toggle notifications setting
 
@@ -36,8 +37,6 @@ show online/offline status of recently connected servers
 =========IMPROVEMENTS=========
 
 set header thingy when requests and stuff to authenticate
-
-add message cap to chatbox
 
 persistent data - username, recent connections,
 

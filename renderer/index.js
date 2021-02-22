@@ -437,15 +437,20 @@ function parseMessage(data){
     messageData.innerText = data.data;
 
     const message = document.createElement('div');
-    message.setAttribute('class', data.type);
+    message.setAttribute('class', `${data.type} chatMessage`);
     message.append(timeEm, ' ', usernameStrong, messageData);
 
     chatBox.appendChild(message);
     scrollDown();
-
+    trimMessages();
+    
     ipcRenderer.send('ping', true);
 };
-
+function trimMessages(){
+    let messages = Array.from(document.getElementsByClassName('chatMessage')).slice(-100);
+    chatBox.innerHTML = '';
+    messages.forEach(msg => chatBox.appendChild(msg));
+}
 function newMessage(type, username, data){ //convert this to a constructor maybe someday
     const date = new Date();
     const hours = date.getHours();
