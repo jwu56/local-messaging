@@ -1,35 +1,54 @@
 =========NEW FEATURES=========
+
 add markdown support
+
 toggle notifications setting
+
 upload images to chat
+
 system notifications
+
 connection list
 - typing?
 - window focused?
+
 edit messages feature
+
 ping people - force notficiation ( or add settings )
+
 ADD SEPARATE SETTINGS TAB/POPUP?
+
 add kick and ban option to member list (host)
+
 show online/offline status of recently connected servers
 - refresh status button or auto refresh?
 - background colour - green/online and red/offline
 - title - online / offline
 
 =========IMPROVEMENTS=========
+
 set header thingy when requests and stuff to authenticate
+
 chat overflow x = new line
+
 add message cap to chatbox
+
 persistent data - username, recent connections,
+
 focus on message input when enter pressed
+
 - make pressing enter on any input submit
+
 add send button next to message input
+
 show release notes on update
 
 =========FIXES=========
 
 make sure http and websocket server is disconnecting properly 
-cancel search when connecting (manual, recent)
+
 max character limit for message input
+
 LAGGING ON FOCUS?????
 
 resize window to better
