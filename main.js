@@ -85,7 +85,7 @@ function boot(){
                     autoUpdater.downloadUpdate().catch(error => sendUpdate('error', 'An error occurred while downloading update (hover for error)', error));
                     break;
                 case 'installUpdate':
-                    if (confirm('App will now restart to install update')) autoUpdater.quitAndInstall().catch(error => sendUpdate('error', 'An error occurred while installing update (hover for error)', error));
+                    autoUpdater.quitAndInstall().catch(error => sendUpdate('error', 'An error occurred while installing update (hover for error)', error));
                     break;
             };
         });
