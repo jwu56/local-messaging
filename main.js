@@ -40,7 +40,7 @@ function boot(){
                     } 
                 },
                 {
-                    label: 'Show Devtools',
+                    label: 'Show DevTools',
                     click: () => {
                         win.webContents.openDevTools();
                     }
