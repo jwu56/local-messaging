@@ -48,6 +48,8 @@ add send button next to message input
 
 show release notes on update
 
+clear chat button (with how much to clear)
+
 =========FIXES=========
 
 make sure http and websocket server is disconnecting properly 
