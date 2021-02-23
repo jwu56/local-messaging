@@ -188,6 +188,7 @@ function connectToServer(hoster, ip){
             infoStatus.innerHTML = 'Disconnected';
             return;
         };
+        if (wss) wss.close();
         host = ip;
         chatBox.innerHTML += '<div>=========================</div>';
     };

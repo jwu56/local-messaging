@@ -16,6 +16,7 @@ More efficient IP scanning
 toggle notifications setting
 
 upload images to chat
+- https://www.electronjs.org/docs/api/native-image use this to send as string
 
 connection list
 - typing?
@@ -52,7 +53,5 @@ clear chat button (with how much to clear)
 =========FIXES=========
 
 make sure http and websocket server is disconnecting properly 
-
-LAGGING ON FOCUS?????
 
 resize window to better

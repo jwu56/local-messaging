@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, Tray, ipcMain } = require('electron');
+const { app, BrowserWindow, Menu, Tray, ipcMain, nativeImage } = require('electron');
 const path = require('path');
 const { autoUpdater } = require('electron-updater');
 
@@ -49,21 +49,26 @@ function boot(){
                 }
             ]
         );
+        let pinging = false;
 
-        tray = new Tray(path.join(app.getAppPath(),'./imgs/tray.png'));
+        const trayImage = nativeImage.createFromPath(path.join(app.getAppPath(),'./imgs/tray.png'));
+        tray = new Tray(trayImage);
         tray.setToolTip('Right click for options');
         tray.setContextMenu(contextMenu);
         tray.on('click', () => win.show());
 
+        const pingImage = nativeImage.createFromPath(path.join(app.getAppPath(), './imgs/notif.png'));
         ipcMain.on('ping', () => {
-            if (!win.isFocused()){
+            if (!win.isFocused() && !pinging){
                 win.flashFrame(true);
-                tray.setImage(path.join(app.getAppPath(), './imgs/notif.png'));
-    
-                win.on('focus', () => {
-                    win.flashFrame(false);
-                    tray.setImage(path.join(app.getAppPath(), './imgs/tray.png'));
-                });
+                tray.setImage(pingImage);
+                pinging = true;
+            };
+        });
+        win.on('focus', () => {
+            if (pinging){
+                tray.setImage(trayImage);
+                pinging = false;
             };
         });
     };
