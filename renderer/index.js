@@ -111,7 +111,7 @@ function hostServer(){
     server.listen(port, host, setupWs);
 
     function setupWs(){ //sets up the websocket server 
-        chatBox.innerHTML += '<div>=========================</div>';
+        chatBox.innerHTML = '';
         parseMessage(JSON.parse(newMessage('system', 'Local System', `Server hosted at http://${host}:${port}`)));
         wss = new WebSocket.Server({
             server: server,
@@ -190,7 +190,7 @@ function connectToServer(hoster, ip){
         };
         if (wss) wss.close();
         host = ip;
-        chatBox.innerHTML += '<div>=========================</div>';
+        chatBox.innerHTML = '';
     };
 
     username.setAttribute('readonly', true);
