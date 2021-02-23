@@ -1,7 +1,9 @@
 const { app, BrowserWindow, Menu, Tray, ipcMain, nativeImage } = require('electron');
 const path = require('path');
 const { autoUpdater } = require('electron-updater');
+const Store = require('electron-store');
 
+Store.initRenderer();
 Menu.setApplicationMenu(null);
 
 let tray;

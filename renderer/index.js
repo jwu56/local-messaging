@@ -5,6 +5,9 @@ const WebSocket = require('ws');
 const { networkInterfaces } = require('os'); //used to get IP
 const { ipcRenderer} = require('electron');
 
+const Store = require('electron-store');
+const store = new Store();
+
 const g = document.getElementById.bind(document);
 const hostBtn = g('hostBtn'),
     chatBox = g('chatBox'),
@@ -53,7 +56,7 @@ manualConnectBtn.addEventListener('click', () => {
     connectToServer(false, manualHost.value);
 });
 
-username.value = `Guest_${generateid(5)}`;
+username.value = store.get('username') || `Guest_${generateid(5)}`;
 
 function generateid(length) {
     let result = '';
@@ -84,6 +87,14 @@ function updateConnection(){
     };
 };
 
+if (store.get('recentlyConnected')){
+    store.get('recentlyConnected').forEach(server => {
+        const ipBtn = document.createElement('button');
+        ipBtn.textContent = `${server.host} (${server.ip})`;
+        recentConnections.appendChild(ipBtn);
+        ipBtn.onclick = () => connectToServer(false, server.ip);
+    });
+}
 //#endregion
 
 function hostServer(){
@@ -212,6 +223,7 @@ function connectToServer(hoster, ip){
         parseMessage(JSON.parse(newMessage('system', 'Local System', `Connected to http://${host}:${port}`)));
 
         clientWs.send(newMessage('data', null, JSON.stringify({username: username.value, host: hoster ? true : false}))); //send username and if host to websocket server
+        store.set('username', username.value);
     });
 
     clientWs.on('message', message => { //handle incoming message from websocket server
@@ -252,6 +264,7 @@ function connectToServer(hoster, ip){
                             recentConnections.appendChild(ipBtn);
                             ipBtn.onclick = () => connectToServer(false, server.ip);
                         });
+                        store.set('recentlyConnected', recentlyConnected);
                     };
                 });
                 break;

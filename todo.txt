@@ -39,8 +39,6 @@ show online/offline status of recently connected servers
 
 set header thingy when requests and stuff to authenticate
 
-persistent data - username, recent connections,
-
 focus on message input when enter pressed
 - make pressing enter on any input submit
 
