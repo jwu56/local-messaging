@@ -42,8 +42,6 @@ set header thingy when requests and stuff to authenticate
 focus on message input when enter pressed
 - make pressing enter on any input submit
 
-add send button next to message input
-
 show release notes on update
 
 clear chat button (with how much to clear)
@@ -51,5 +49,3 @@ clear chat button (with how much to clear)
 =========FIXES=========
 
 make sure http and websocket server is disconnecting properly 
-
-resize window to better

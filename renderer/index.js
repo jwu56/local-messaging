@@ -34,7 +34,8 @@ const hostBtn = g('hostBtn'),
     joinWhenFoundDiv = g('joinWhenFoundDiv'),
     wifi = g('wifi'),
     recentConnections = g('recentConnections'),
-    recentConnectionsDiv = g('recentConnectionsDiv');
+    recentConnectionsDiv = g('recentConnectionsDiv'),
+    sendMessageBtn = g('sendMessageBtn');
 
 displayAppVersion();
 setupAutoupdating();
@@ -284,9 +285,12 @@ function connectToServer(hoster, ip){
     });
 
     document.onkeydown = sendMessage;
+    sendMessageBtn.onclick = event => sendMessage(event, true);
 
-    function sendMessage(event){ //send message to websocket server
-        if (event.key === 'Enter' && document.activeElement === messageInput && messageInput.value.trim().length > 0){
+    function sendMessage(event, click){ //send message to websocket server
+        if (event.type === 'keydown' && (event.key !== 'Enter' || document.activeElement !== messageInput)) return;
+        
+        if (clientWs.readyState === 1 && messageInput.value.trim().length > 0){
             clientWs.send(newMessage('message', username.value || 'Guest', messageInput.value.trim()));
             messageInput.value = '';
         };
