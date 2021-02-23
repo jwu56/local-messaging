@@ -69,7 +69,7 @@ function boot(){
     };
     function setupAutoupdate(){
         autoUpdater.autoDownload = false;
-        autoUpdater.checkForUpdates().catch(error => sendUpdate('error', 'An error occurred while checking for updates (hover for error) - this may happen if github.com is blocked in your network', error));
+        autoUpdater.checkForUpdates().catch(error => sendUpdate('error', 'An error occurred while checking for updates (hover for error) - this may happen if github.com is blocked on your network', error));
 
         //autoUpdater.on('error', error => sendUpdate('error', 'An error occurred', error));
         autoUpdater.on('checking-for-update', () => sendUpdate('updateCheck', 'Checking for updates...'));
@@ -81,7 +81,7 @@ function boot(){
         ipcMain.on('autoUpdater', (event, action) => {
             switch (action) {
                 case 'checkUpdate':
-                    autoUpdater.checkForUpdates().catch(error => sendUpdate('error', 'An error occurred while checking for updates (hover for error) - this may happen if github.com is blocked in your network', error));
+                    autoUpdater.checkForUpdates().catch(error => sendUpdate('error', 'An error occurred while checking for updates (hover for error) - this may happen if github.com is blocked on your network', error));
                     break;
                 case 'downloadUpdate':
                     autoUpdater.downloadUpdate().catch(error => sendUpdate('error', 'An error occurred while downloading update (hover for error)', error));
