@@ -46,6 +46,21 @@ let searching = false;
 const port = 121;
 let recentlyConnected = [];
 
+document.addEventListener('keydown', event => {
+    if (event.key !== 'Enter') return;
+    switch (document.activeElement){
+        case document.body:
+            messageInput.focus();
+            break;
+        case username:
+            username.blur();
+            break;
+        case manualHost:
+            manualConnectBtn.click();
+            break;
+    };
+});
+
 hostBtn.addEventListener('click', hostServer);
 searchServersBtn.addEventListener('click', runSearches);
 cancelSearchBtn.addEventListener('click', endSearch);
@@ -189,6 +204,7 @@ function connectToServer(hoster, ip){
     searchBox.style.display = 'none';
     searchBox.innerHTML = '';
     infoStatus.innerHTML = 'Connecting';
+    chatBox.innerText += `Connecting to ${ip}...`
 
     if (!hoster){
         if (!username.value) {
@@ -202,7 +218,6 @@ function connectToServer(hoster, ip){
         };
         if (wss) wss.close();
         host = ip;
-        chatBox.innerHTML = '';
     };
 
     username.setAttribute('readonly', true);
@@ -218,6 +233,8 @@ function connectToServer(hoster, ip){
     });
 
     clientWs.on('open', () => {
+        chatBox.innerHTML = '';
+
         clearTimeout(timeout);
         infoStatus.innerHTML = 'Connected';
         
