@@ -35,7 +35,8 @@ const hostBtn = g('hostBtn'),
     wifi = g('wifi'),
     recentConnections = g('recentConnections'),
     recentConnectionsDiv = g('recentConnectionsDiv'),
-    sendMessageBtn = g('sendMessageBtn');
+    sendMessageBtn = g('sendMessageBtn'),
+    pingConnectionsBtn = g('pingConnectionsBtn');
 
 displayAppVersion();
 setupAutoupdating();
@@ -586,3 +587,4 @@ function pingRecentlyConnected(){
         req.end();
     });
 };
+pingConnectionsBtn.onclick = pingRecentlyConnected;
