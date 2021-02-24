@@ -326,6 +326,7 @@ function setupRecentlyConnected(){
 
         recentlyConnected[index].btn = ipBtn;
     });
+    store.set('recentlyConnected', recentlyConnected);
 };
 
 function disconnectAll(){
