@@ -262,7 +262,7 @@ function connectToServer(hoster, ip){
                     memberList.appendChild(mainDiv);
 
                     if (member.isHost && member.id !== clientWs.id){ //adds the server to recently connected using the host's name and ip
-                        recentlyConnected.push({hostName: member.username, ipAddress: host});
+                        recentlyConnected.unshift({hostName: member.username, ipAddress: host});
 
                         setupRecentlyConnected();
                     };
