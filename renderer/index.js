@@ -576,13 +576,19 @@ function displayAppVersion(){
 
 function pingRecentlyConnected(){
     recentlyConnected.forEach(server => {
+        const btn = server.btn;
+        btn.style.color = 'black';
+        btn.title = '';
         const req = http.request({hostname: server.ipAddress, port: port, method: 'GET'}, res => {
-            server.btn.style.color = 'green';
-            server.btn.title = 'Server Online';
+            btn.style.color = 'green';
+            btn.title = 'Server Online';
+            res.on('data', data => {
+                btn.innerText = `${data} (${server.ipAddress})`;
+            });
         });
         req.on('error', error => {
-            server.btn.style.color = 'orangered';
-            server.btn.title = 'Server Offline';
+            btn.style.color = 'red';
+            btn.title = 'Server Offline';
         });
         req.end();
     });
