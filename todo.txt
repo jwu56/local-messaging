@@ -26,12 +26,19 @@ edit messages feature
 
 ping people - force notficiation ( or add settings )
 
-ADD SEPARATE SETTINGS TAB/POPUP?
-
 add kick and ban option to member list (host)
 
 embedded games? 
 - tic tac toe, chess etc
+
+settings (save all these in electorn-store)
+- chatbox message cap
+- search configs
+- auto-searching
+- manual/automatic recently connected pinging
+- message input char limit
+- dark mode
+- clear storage
 =========IMPROVEMENTS=========
 
 set header thingy when requests and stuff to authenticate
