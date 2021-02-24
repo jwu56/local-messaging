@@ -23,6 +23,7 @@
         </section>
         
         <section id="infoSection">
+            <img id="settingsIcon" src="../imgs/settings.png">
 
             <div><strong>Host Address:</strong>
             <span id="infoHost"></span></div>
@@ -32,9 +33,6 @@
 
             <div><strong>Status:</strong>
             <span id="infoStatus">Disconnected</span></div>
-
-            <div><strong>Username:</strong>
-            <input type="text" id="username" placeholder="Username"></div>
 
         </section>
 
@@ -85,10 +83,21 @@
             </div>
 
             <div id="recentConnectionsDiv">
-                <h3 title="Record of last 5 connections this session">Recent Connections</h3>
-                <button id="pingConnectionsBtn" title="Pings servers to see if they are online or offline">Ping Servers</button>
+                <h3 title="Record of last 5 connections this session" class="inlineBlock">Recent Connections</h3>
+                <button id="pingConnectionsBtn" class="inlineBlock" title="Pings servers to see if they are online or offline">Ping Servers</button>
                 <div id="recentConnections">
 
+                </div>
+            </div>
+        </section>
+
+        <section id="settingsContainer" style="display: none;">
+            <div id="settingsDiv">
+                <h2>Settings</h2>
+                <div>
+                    <strong>Username:</strong>
+                    <input type="text" id="username" placeholder="Username" maxlength="30">
+                    <button id="saveUsernameBtn">Save Username</button>
                 </div>
             </div>
         </section>

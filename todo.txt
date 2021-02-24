@@ -30,21 +30,12 @@ ADD SEPARATE SETTINGS TAB/POPUP?
 
 add kick and ban option to member list (host)
 
-show online/offline status of recently connected servers
-- refresh status button or auto refresh?
-- background colour - green/online and red/offline
-- title - online / offline
-
 embedded games? 
 - tic tac toe, chess etc
 =========IMPROVEMENTS=========
 
 set header thingy when requests and stuff to authenticate
 
-show release notes on update
-
 clear chat button (with how much to clear)
 
 =========FIXES=========
-
-make sure http and websocket server is disconnecting properly 

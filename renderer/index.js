@@ -36,7 +36,10 @@ const hostBtn = g('hostBtn'),
     recentConnections = g('recentConnections'),
     recentConnectionsDiv = g('recentConnectionsDiv'),
     sendMessageBtn = g('sendMessageBtn'),
-    pingConnectionsBtn = g('pingConnectionsBtn');
+    pingConnectionsBtn = g('pingConnectionsBtn'),
+    settingsIcon = g('settingsIcon'),
+    settingsContainer = g('settingsContainer'),
+    saveUsernameBtn = g('saveUsernameBtn');
 
 displayAppVersion();
 setupAutoupdating();
@@ -106,6 +109,13 @@ function updateConnection(){
 
 setupRecentlyConnected();
 
+saveUsernameBtn.onclick = () => {
+    if (!username.value){
+        store.set('username', null);
+    } else {
+        store.set('username', username.value);
+    };
+};
 //#endregion
 
 function hostServer(){
@@ -594,3 +604,8 @@ function pingRecentlyConnected(){
     });
 };
 pingConnectionsBtn.onclick = pingRecentlyConnected;
+
+settingsIcon.onclick = () => settingsContainer.style.display = 'flex';
+settingsContainer.onclick = event => {
+    if (event.target === settingsContainer) settingsContainer.style.display = 'none';
+};
