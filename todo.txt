@@ -35,12 +35,11 @@ show online/offline status of recently connected servers
 - background colour - green/online and red/offline
 - title - online / offline
 
+embedded games? 
+- tic tac toe, chess etc
 =========IMPROVEMENTS=========
 
 set header thingy when requests and stuff to authenticate
-
-focus on message input when enter pressed
-- make pressing enter on any input submit
 
 show release notes on update
 

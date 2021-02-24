@@ -44,7 +44,7 @@ let host, wss, server, clientWs;
 let halt = false;
 let searching = false;
 const port = 121;
-let recentlyConnected = [];
+let recentlyConnected = store.get('recentlyConnected') || [];
 
 document.addEventListener('keydown', event => {
     if (event.key !== 'Enter') return;
@@ -103,14 +103,8 @@ function updateConnection(){
     };
 };
 
-if (store.get('recentlyConnected')){
-    store.get('recentlyConnected').forEach(server => {
-        const ipBtn = document.createElement('button');
-        ipBtn.textContent = `${server.host} (${server.ip})`;
-        recentConnections.appendChild(ipBtn);
-        ipBtn.onclick = () => connectToServer(false, server.ip);
-    });
-}
+setupRecentlyConnected();
+
 //#endregion
 
 function hostServer(){
@@ -157,9 +151,9 @@ function hostServer(){
                     const data = JSON.parse(JSON.parse(message).data);
 
                     ws.username = data.username;
-                    ws.host = data.host;
+                    ws.isHost = data.isHost;
 
-                    const msg = newMessage('system join', 'Global System', `${ws.username}${ws.host ? ' (host)' : ''} has joined`);
+                    const msg = newMessage('system join', 'Global System', `${ws.username}${ws.isHost ? ' (host)' : ''} has joined`);
                     history.push(msg);
                     sendToAll(msg);
 
@@ -190,7 +184,7 @@ function hostServer(){
             function sendMemberList(){
                 let members = [];
                 wss.clients.forEach(ws => {
-                    members.push({username: ws.username, host: ws.host, id: ws.id})
+                    members.push({username: ws.username, isHost: ws.isHost, id: ws.id})
                 });
                 sendToAll(newMessage('memberList', null, members));
             };
@@ -237,11 +231,9 @@ function connectToServer(hoster, ip){
 
         clearTimeout(timeout);
         infoStatus.innerHTML = 'Connected';
-        
         parseMessage(JSON.parse(newMessage('system', 'Local System', `Connected to http://${host}:${port}`)));
 
-        clientWs.send(newMessage('data', null, JSON.stringify({username: username.value, host: hoster ? true : false}))); //send username and if host to websocket server
-        store.set('username', username.value);
+        clientWs.send(newMessage('data', null, JSON.stringify({username: username.value, isHost: hoster ? true : false}))); //send username and if host to websocket server
     });
 
     clientWs.on('message', message => { //handle incoming message from websocket server
@@ -265,24 +257,14 @@ function connectToServer(hoster, ip){
 
                     const mainDiv = document.createElement('div');
                     mainDiv.appendChild(usernameSpan);
-                    mainDiv.innerHTML += `${member.host ? ' (host)' : ''}${member.id === clientWs.id ? ' (you)' : ''}`;
+                    mainDiv.innerHTML += `${member.isHost ? ' (host)' : ''}${member.id === clientWs.id ? ' (you)' : ''}`;
 
                     memberList.appendChild(mainDiv);
 
-                    if (member.host && member.id !== clientWs.id){ //adds the server to recently connected using the host's name and ip
-                        recentlyConnected = recentlyConnected.filter(value => value.ip !== host);
-                        recentlyConnected.push({host: member.username, ip: host});
-                        recentlyConnected = recentlyConnected.slice(-5);
+                    if (member.isHost && member.id !== clientWs.id){ //adds the server to recently connected using the host's name and ip
+                        recentlyConnected.push({hostName: member.username, ipAddress: host});
 
-                        recentConnections.innerHTML = '';
-
-                        recentlyConnected.forEach(server => {
-                            const ipBtn = document.createElement('button');
-                            ipBtn.textContent = `${server.host} (${server.ip})`;
-                            recentConnections.appendChild(ipBtn);
-                            ipBtn.onclick = () => connectToServer(false, server.ip);
-                        });
-                        store.set('recentlyConnected', recentlyConnected);
+                        setupRecentlyConnected();
                     };
                 });
                 break;
@@ -302,9 +284,9 @@ function connectToServer(hoster, ip){
     });
 
     document.onkeydown = sendMessage;
-    sendMessageBtn.onclick = event => sendMessage(event, true);
+    sendMessageBtn.onclick = sendMessage;
 
-    function sendMessage(event, click){ //send message to websocket server
+    function sendMessage(event) { //send message to websocket server
         if (event.type === 'keydown' && (event.key !== 'Enter' || document.activeElement !== messageInput)) return;
         
         if (clientWs.readyState === 1 && messageInput.value.trim().length > 0){
@@ -315,17 +297,34 @@ function connectToServer(hoster, ip){
 
     toggleConnectionBtns(false);
     disconnectBtn.onclick = disconnectAll;
-
-    
 };
+
+function setupRecentlyConnected(){
+    recentlyConnected = recentlyConnected.filter((server, index, array) => index === array.findIndex(s => s.ipAddress === server.ipAddress));
+    recentlyConnected = recentlyConnected.slice(-5);
+
+    recentConnections.innerHTML = '';
+
+    recentlyConnected.forEach((server, index) => {
+        const ipBtn = document.createElement('button');
+        ipBtn.style.fontWeight = 'bold';
+        ipBtn.textContent = `${server.hostName} (${server.ipAddress})`;
+
+        recentConnections.appendChild(ipBtn);
+        ipBtn.onclick = () => connectToServer(false, server.ipAddress);
+
+        recentlyConnected[index].btn = ipBtn;
+    });
+};
+
 function disconnectAll(){
     if (wss) {
         wss.close();
         server.close();
-        console.log(wss, server);
     };
     clientWs.close(1000, username.value);
 };
+
 function runSearches(){
     if (!navigator.onLine){
         configError('Not connected to a network');
@@ -482,7 +481,7 @@ function parseMessage(data){
     ipcRenderer.send('ping', true);
 };
 
-function trimMessages(){
+function trimMessages(){ //caps the chatbox to 100 messages
     let messages = Array.from(document.getElementsByClassName('chatMessage')).slice(-100);
     chatBox.innerHTML = '';
     messages.forEach(msg => chatBox.appendChild(msg));
@@ -572,4 +571,18 @@ function setupAutoupdating(){
 function displayAppVersion(){
     const appVersion = g('appVersion');
     appVersion.innerText = `v${require("electron").remote.app.getVersion()}`;
+};
+
+function pingRecentlyConnected(){
+    recentlyConnected.forEach(server => {
+        const req = http.request({hostname: server.ipAddress, port: port, method: 'GET'}, res => {
+            server.btn.style.color = 'green';
+            server.btn.title = 'Server Online';
+        });
+        req.on('error', error => {
+            server.btn.style.color = 'orangered';
+            server.btn.title = 'Server Offline';
+        });
+        req.end();
+    });
 };
