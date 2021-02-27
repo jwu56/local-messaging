@@ -167,9 +167,6 @@ function hostServer(){
         wss.on('connection', (ws, request) => {
             // Assign an encryption key
             ws.enc_key = generatekey(143850);
-            if (history.length > 0) {
-                ws.send(newMessage('history', null, history)); //send chat history to connected websocket
-            };
             ws.id = wsId++;
             ws.send(newMessage('data', null, ws.id)); //assigns an id to the websocket
             const verifyMsg = newMessage("ss_ss", null, ws.enc_key);
@@ -193,6 +190,10 @@ function hostServer(){
                         console.log("verified");
                         members.find(x => x.id=userid).verified = true;
                         ws.isVerified = true;
+                        console.log(JSON.stringify(history));
+                        if (history.length > 0) {
+                            ws.send(newMessage('history', null, encrypt(JSON.stringify(history),ws.enc_key))); //send chat history to connected websocket
+                        }
                     }
                     else {
                         console.log("Failure");
@@ -201,8 +202,9 @@ function hostServer(){
                 }
                 else{
                     if (ws.isVerified) {
-                        console.log(decrypt(message,ws.enc_key))
-                        history.push(decrypt(message,ws.enc_key)); 
+                        console.log(message);
+                        console.log(decrypt(JSON.parse(message).data,ws.enc_key))
+                        history.push(decrypt(JSON.parse(message).data,ws.enc_key)); 
                         sendToAll(newMessage(JSON.parse(message).type,JSON.parse(message).username,decrypt(JSON.parse(message).data,ws.enc_key)),true);
                     }
                     else {
@@ -250,7 +252,7 @@ function hostServer(){
                 sendToAll(newMessage('memberList', null, members),false);
             };
         });
-        connectToServer(true);
+        connectToServer(true,getIp());
     };
 };
 
@@ -302,7 +304,9 @@ function connectToServer(hoster, ip){
         console.log(message.type);
         switch (message.type) {
             case 'history': //if receiving chat history
-                message.data.forEach(data => {
+                historydata = decrypt(message.data,clientWs.enc_key);
+                historydata = JSON.parse(historydata);
+                historydata.forEach(data => {
                     data = JSON.parse(data);
                     parseMessage(data);
                 });
